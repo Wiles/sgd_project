@@ -13,7 +13,7 @@ namespace sgd_project
         private Vector3 _gravity;
         private const float Rps = MathHelper.TwoPi;
         private Vector3 _velocity;
-        private const float MinY = 1.78f;
+        public const float MinY = 1.78f;
 
         public Lem()
         {

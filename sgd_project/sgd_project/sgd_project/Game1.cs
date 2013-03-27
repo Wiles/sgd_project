@@ -24,7 +24,7 @@ namespace sgd_project
         private EffectParameter _textureEffectWvp;
         private EffectParameter _textureEffectImage;
         private const float CameraRps = MathHelper.TwoPi;
-        private Dictionary<string, float> Gravity = new Dictionary<string, float>();
+        private Dictionary<string, Vector3> Gravity = new Dictionary<string, Vector3>();
 
         readonly VertexPositionColorTexture[] _groundVertices = new VertexPositionColorTexture[4];
         
@@ -42,8 +42,11 @@ namespace sgd_project
         /// </summary>
         protected override void Initialize()
         {
-            Gravity.Add("moon", -1.622f);
-            Gravity.Add("earth", -9.81f);
+            //Equitorial Surface Gravity as listed on Wikipedia
+            Gravity.Add("moon", new Vector3(0, -1.622f, 0));
+            Gravity.Add("earth", new Vector3(0, -9.780327f, 0));
+            Gravity.Add("jupiter", new Vector3(0, -24.79f, 0));
+            Gravity.Add("sun", new Vector3(0, -274.0f, 0));
 
             _graphics.GraphicsDevice.RasterizerState = RasterizerState.CullNone;
 
@@ -99,7 +102,7 @@ namespace sgd_project
         {
             _grassTexture = Content.Load<Texture2D>("Images\\grass");
             _lemModel = Content.Load<Model>("models\\LEM\\LEM");
-            _lem.Init(new Vector3(0,1.78f,0), _lemModel, new Vector3(0, Gravity["earth"], 0));
+            _lem.Init(new Vector3(0, Lem.MinY, 0), _lemModel, Gravity["earth"]);
         }
 
         /// <summary>
