@@ -18,6 +18,7 @@ namespace sgd_project
         private readonly Vector3 _cameraPosition = new Vector3(0.0f, 00.0f, 10.0f);
         private float _cameraHorizontalAngle;
         private float _cameraVerticalAngle;
+        private const float _cameraRPS = MathHelper.TwoPi;
 
         public Game1()
         {
@@ -64,17 +65,18 @@ namespace sgd_project
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Update(GameTime gameTime)
         {
+            var delta = gameTime.ElapsedGameTime.Milliseconds;
             // Allows the game to exit
             var gpState = GamePad.GetState(PlayerIndex.One);
 
             if (gpState.Buttons.Back == ButtonState.Pressed)
                 Exit();
-            
-            _cameraHorizontalAngle += gpState.ThumbSticks.Right.Y / 10.0f;
-            _cameraHorizontalAngle = MathHelper.Clamp(_cameraHorizontalAngle, -MathHelper.PiOver2 * .95f, MathHelper.PiOver2 * .95f);
-            _cameraVerticalAngle -= gpState.ThumbSticks.Right.X / 10.0f;
 
-            lem.Update(gameTime.ElapsedGameTime.Milliseconds, gpState);
+            _cameraHorizontalAngle += delta / 1000.0f * gpState.ThumbSticks.Right.Y * MathHelper.TwoPi;
+            _cameraHorizontalAngle = MathHelper.Clamp(_cameraHorizontalAngle, -MathHelper.PiOver2 * .95f, MathHelper.PiOver2 * .95f);
+            _cameraVerticalAngle -= delta / 1000.0f * gpState.ThumbSticks.Right.X * MathHelper.TwoPi;
+
+            lem.Update(delta, gpState);
 
             base.Update(gameTime);
         }

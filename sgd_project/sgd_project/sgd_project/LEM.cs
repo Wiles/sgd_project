@@ -9,7 +9,7 @@ namespace sgd_project
     {
         private Model _model;
         public Vector3 Position { get; private set; }
-        private float _rotationY;
+        private float _rotationZ;
         private float _rotationX;
         private const float RPS = MathHelper.TwoPi;
 
@@ -26,8 +26,7 @@ namespace sgd_project
         public void Update(long delta, GamePadState gamePad)
         {
             var timePercent = delta/1000.0;
-            _rotationY += (float)(gamePad.ThumbSticks.Left.X * timePercent * RPS);
-            _rotationY = MathHelper.Clamp(_rotationY, -MathHelper.PiOver2, MathHelper.PiOver2);
+            _rotationZ += (float)(gamePad.ThumbSticks.Left.X * timePercent * RPS);
             _rotationX += (float)(gamePad.ThumbSticks.Left.Y * timePercent * RPS);
         }
 
@@ -44,7 +43,7 @@ namespace sgd_project
                 {
                     effect.EnableDefaultLighting();
                     effect.World = transforms[mesh.ParentBone.Index] *
-                        Matrix.CreateRotationY(_rotationY) *
+                        Matrix.CreateRotationZ(_rotationZ) *
                         Matrix.CreateRotationX(_rotationX)
                         * Matrix.CreateTranslation(Position);
                     effect.View = camera;
