@@ -1,4 +1,3 @@
-using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
@@ -13,10 +12,10 @@ namespace sgd_project
         readonly GraphicsDeviceManager _graphics;
         private SpriteBatch _spriteBatch;
 
+        private LEM lem = new LEM();
+
         private Model _lemModel;
-        private const float ModelRotation = 0.0f;
-        readonly Vector3 _modelPosition = Vector3.Zero;
-        private Vector3 _cameraPosition = new Vector3(0.0f, 00.0f, 10.0f);
+        private readonly Vector3 _cameraPosition = new Vector3(0.0f, 00.0f, 10.0f);
         private float _cameraHorizontalAngle;
         private float _cameraVerticalAngle;
 
@@ -47,6 +46,7 @@ namespace sgd_project
             _spriteBatch = new SpriteBatch(GraphicsDevice);
 
             _lemModel = Content.Load<Model>("models\\LEM\\LEM");
+            lem.Init(Vector3.Zero, _lemModel);
         }
 
         /// <summary>
@@ -65,12 +65,16 @@ namespace sgd_project
         protected override void Update(GameTime gameTime)
         {
             // Allows the game to exit
-            if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed)
+            var gpState = GamePad.GetState(PlayerIndex.One);
+
+            if (gpState.Buttons.Back == ButtonState.Pressed)
                 Exit();
             
-            _cameraHorizontalAngle += GamePad.GetState(PlayerIndex.One).ThumbSticks.Right.Y / 10.0f;
+            _cameraHorizontalAngle += gpState.ThumbSticks.Right.Y / 10.0f;
             _cameraHorizontalAngle = MathHelper.Clamp(_cameraHorizontalAngle, -MathHelper.PiOver2 * .95f, MathHelper.PiOver2 * .95f);
-            _cameraVerticalAngle -= GamePad.GetState(PlayerIndex.One).ThumbSticks.Right.X / 10.0f;
+            _cameraVerticalAngle -= gpState.ThumbSticks.Right.X / 10.0f;
+
+            lem.Update(gameTime.ElapsedGameTime.Milliseconds, gpState);
 
             base.Update(gameTime);
         }
@@ -84,31 +88,15 @@ namespace sgd_project
             _graphics.GraphicsDevice.Clear(Color.CornflowerBlue);
 
             // Copy any parent transforms.
-            var transforms = new Matrix[_lemModel.Bones.Count];
-            _lemModel.CopyAbsoluteBoneTransformsTo(transforms);
 
-            var camera = Vector3.Transform(_cameraPosition - _modelPosition, Matrix.CreateFromAxisAngle(Vector3.UnitX, _cameraHorizontalAngle)) + _modelPosition;
-            camera = Vector3.Transform(camera - _modelPosition, Matrix.CreateFromAxisAngle(Vector3.UnitY, _cameraVerticalAngle)) + _modelPosition;
+            var camera = Vector3.Transform(_cameraPosition - lem.Position, Matrix.CreateFromAxisAngle(Vector3.UnitX, _cameraHorizontalAngle)) + lem.Position;
+            camera = Vector3.Transform(camera - lem.Position, Matrix.CreateFromAxisAngle(Vector3.UnitY, _cameraVerticalAngle)) + lem.Position;
             // Draw the model. A model can have multiple meshes, so loop.
-            foreach (ModelMesh mesh in _lemModel.Meshes)
-            {
-                // This is where the mesh orientation is set, as well 
-                // as our camera and projection.
-                foreach (BasicEffect effect in mesh.Effects)
-                {
-                    effect.EnableDefaultLighting();
-                    effect.World = transforms[mesh.ParentBone.Index] *
-                        Matrix.CreateRotationY(ModelRotation)
-                        * Matrix.CreateTranslation(_modelPosition);
-                    effect.View = Matrix.CreateLookAt(camera,
-                        _modelPosition, Vector3.Up);
-                    effect.Projection = Matrix.CreatePerspectiveFieldOfView(
+            var look = Matrix.CreateLookAt(camera, lem.Position, Vector3.Up);
+            var projection = Matrix.CreatePerspectiveFieldOfView(
                         MathHelper.ToRadians(45.0f), _graphics.GraphicsDevice.Viewport.AspectRatio,
                         1.0f, 10000.0f);
-                }
-                // Draw the mesh, using the effects set above.
-                mesh.Draw();
-            }
+            lem.Draw(look, projection);
             base.Draw(gameTime);
         }
     }
