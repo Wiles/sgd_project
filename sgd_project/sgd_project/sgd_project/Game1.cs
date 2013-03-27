@@ -69,7 +69,8 @@ namespace sgd_project
                 Exit();
             
             _cameraHorizontalAngle += GamePad.GetState(PlayerIndex.One).ThumbSticks.Right.Y / 10.0f;
-            _cameraVerticalAngle += GamePad.GetState(PlayerIndex.One).ThumbSticks.Right.X / 10.0f;
+            _cameraHorizontalAngle = MathHelper.Clamp(_cameraHorizontalAngle, -MathHelper.PiOver2 * .95f, MathHelper.PiOver2 * .95f);
+            _cameraVerticalAngle -= GamePad.GetState(PlayerIndex.One).ThumbSticks.Right.X / 10.0f;
 
             base.Update(gameTime);
         }
