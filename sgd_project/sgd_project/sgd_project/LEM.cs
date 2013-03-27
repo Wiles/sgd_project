@@ -50,7 +50,9 @@ namespace sgd_project
                 Position = new Vector3(Position.X, MinY, Position.Z);
             }
             _rotationZ += gamePad.ThumbSticks.Left.X * timePercent * Rps;
+            _rotationZ = MathHelper.Clamp(_rotationZ, -MathHelper.PiOver2, MathHelper.PiOver2);
             _rotationX += gamePad.ThumbSticks.Left.Y * timePercent * Rps;
+            _rotationX = MathHelper.Clamp(_rotationX, -MathHelper.PiOver2, MathHelper.PiOver2);
         }
 
         public void Draw(Matrix camera, Matrix projection)
