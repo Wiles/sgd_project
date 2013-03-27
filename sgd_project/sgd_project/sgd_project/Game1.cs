@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
@@ -10,21 +11,20 @@ namespace sgd_project
     public class Game1 : Game
     {
         readonly GraphicsDeviceManager _graphics;
-        private SpriteBatch _spriteBatch;
         private Texture2D _grassTexture;
 
-        private LEM lem = new LEM();
+        private readonly Lem _lem = new Lem();
 
         private const float Boundary = 1600.0f;
         private Model _lemModel;
         private readonly Vector3 _cameraPosition = new Vector3(0.0f, 00.0f, 10.0f);
-        private float _cameraHorizontalAngle;
-        private float _cameraVerticalAngle;
+        private float _cameraHorizontalAngle = -MathHelper.PiOver4;
+        private float _cameraVerticalAngle = MathHelper.PiOver4;
         private Effect _textureEffect;
         private EffectParameter _textureEffectWvp;
         private EffectParameter _textureEffectImage;
         private const float CameraRps = MathHelper.TwoPi;
-
+        private Dictionary<string, float> Gravity = new Dictionary<string, float>();
 
         readonly VertexPositionColorTexture[] _groundVertices = new VertexPositionColorTexture[4];
         
@@ -42,7 +42,8 @@ namespace sgd_project
         /// </summary>
         protected override void Initialize()
         {
-
+            Gravity.Add("moon", -1.622f);
+            Gravity.Add("earth", -9.81f);
 
             _graphics.GraphicsDevice.RasterizerState = RasterizerState.CullNone;
 
@@ -96,11 +97,9 @@ namespace sgd_project
         /// </summary>
         protected override void LoadContent()
         {
-            // Create a new SpriteBatch, which can be used to draw textures.
-            _spriteBatch = new SpriteBatch(GraphicsDevice);
             _grassTexture = Content.Load<Texture2D>("Images\\grass");
             _lemModel = Content.Load<Model>("models\\LEM\\LEM");
-            lem.Init(new Vector3(0,1.78f,0), _lemModel);
+            _lem.Init(new Vector3(0,1.78f,0), _lemModel, new Vector3(0, Gravity["earth"], 0));
         }
 
         /// <summary>
@@ -129,7 +128,7 @@ namespace sgd_project
             _cameraHorizontalAngle = MathHelper.Clamp(_cameraHorizontalAngle, -MathHelper.PiOver2 * .95f, MathHelper.PiOver2 * .95f);
             _cameraVerticalAngle -= delta / 1000.0f * gpState.ThumbSticks.Right.X * CameraRps;
 
-            lem.Update(delta, gpState);
+            _lem.Update(delta, gpState);
 
             base.Update(gameTime);
         }
@@ -143,15 +142,14 @@ namespace sgd_project
             _graphics.GraphicsDevice.Clear(Color.CornflowerBlue);
 
             // Copy any parent transforms.
-
-            var camera = Vector3.Transform(_cameraPosition - lem.Position, Matrix.CreateFromAxisAngle(Vector3.UnitX, _cameraHorizontalAngle)) + lem.Position;
-            camera = Vector3.Transform(camera - lem.Position, Matrix.CreateFromAxisAngle(Vector3.UnitY, _cameraVerticalAngle)) + lem.Position;
+            var camera = Vector3.Transform(_cameraPosition, Matrix.CreateFromAxisAngle(Vector3.UnitX, _cameraHorizontalAngle));
+            camera = Vector3.Transform(camera, Matrix.CreateFromAxisAngle(Vector3.UnitY, _cameraVerticalAngle));
             // Draw the model. A model can have multiple meshes, so loop.
-            var look = Matrix.CreateLookAt(camera, lem.Position, Vector3.Up);
+            var look = Matrix.CreateLookAt(_lem.Position + camera, _lem.Position, Vector3.Up);
             var projection = Matrix.CreatePerspectiveFieldOfView(
                         MathHelper.ToRadians(45.0f), _graphics.GraphicsDevice.Viewport.AspectRatio,
                         1.0f, 10000.0f);
-            lem.Draw(look, projection);
+            _lem.Draw(look, projection);
             DrawGround(look, projection);
             base.Draw(gameTime);
         }
