@@ -1,3 +1,4 @@
+using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
@@ -10,12 +11,14 @@ namespace sgd_project
     public class Game1 : Game
     {
         readonly GraphicsDeviceManager _graphics;
-        SpriteBatch _spriteBatch;
+        private SpriteBatch _spriteBatch;
 
         private Model _lemModel;
         private const float ModelRotation = 0.0f;
         readonly Vector3 _modelPosition = Vector3.Zero;
-        readonly Vector3 _cameraPosition = new Vector3(0.0f, 00.0f, 10.0f);
+        private Vector3 _cameraPosition = new Vector3(0.0f, 00.0f, 10.0f);
+        private float _cameraHorizontalAngle;
+        private float _cameraVerticalAngle;
 
         public Game1()
         {
@@ -64,6 +67,9 @@ namespace sgd_project
             // Allows the game to exit
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed)
                 Exit();
+            
+            _cameraHorizontalAngle += GamePad.GetState(PlayerIndex.One).ThumbSticks.Right.Y / 10.0f;
+            _cameraVerticalAngle += GamePad.GetState(PlayerIndex.One).ThumbSticks.Right.X / 10.0f;
 
             base.Update(gameTime);
         }
@@ -80,6 +86,8 @@ namespace sgd_project
             var transforms = new Matrix[_lemModel.Bones.Count];
             _lemModel.CopyAbsoluteBoneTransformsTo(transforms);
 
+            var camera = Vector3.Transform(_cameraPosition - _modelPosition, Matrix.CreateFromAxisAngle(Vector3.UnitX, _cameraHorizontalAngle)) + _modelPosition;
+            camera = Vector3.Transform(camera - _modelPosition, Matrix.CreateFromAxisAngle(Vector3.UnitY, _cameraVerticalAngle)) + _modelPosition;
             // Draw the model. A model can have multiple meshes, so loop.
             foreach (ModelMesh mesh in _lemModel.Meshes)
             {
@@ -91,8 +99,8 @@ namespace sgd_project
                     effect.World = transforms[mesh.ParentBone.Index] *
                         Matrix.CreateRotationY(ModelRotation)
                         * Matrix.CreateTranslation(_modelPosition);
-                    effect.View = Matrix.CreateLookAt(_cameraPosition,
-                        Vector3.Zero, Vector3.Up);
+                    effect.View = Matrix.CreateLookAt(camera,
+                        _modelPosition, Vector3.Up);
                     effect.Projection = Matrix.CreatePerspectiveFieldOfView(
                         MathHelper.ToRadians(45.0f), _graphics.GraphicsDevice.Viewport.AspectRatio,
                         1.0f, 10000.0f);
