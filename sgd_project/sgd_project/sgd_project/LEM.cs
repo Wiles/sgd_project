@@ -11,22 +11,18 @@ namespace sgd_project
         public Vector3 Position { get; private set; }
         public float RotationZ { get; private set; }
         public float RotationX { get; private set; }
-        private Vector3 _gravity;
+        public Vector3 Gravity { get; set; }
         private const float Rps = MathHelper.PiOver4;
         private const float MaxThrust = 15f;
         private Vector3 _velocity;
         public static readonly float MinY = 1.75f * Lander.Metre.Y;
         public float Fuel { get; private set; }
-
-        public Lem()
-        {
-        }
-
+        
         public void Init(Vector3 position, Model model, Vector3 gravity, float fuel)
         {
             _model = model;
             Position = position;
-            _gravity = gravity;
+            Gravity = gravity;
             Fuel = fuel;
         }
 
@@ -37,7 +33,7 @@ namespace sgd_project
                 return;
             }
             var timePercent = delta/1000f;
-            _velocity += _gravity * timePercent;
+            _velocity += Gravity * timePercent;
 
             Fuel -= gamePad.Triggers.Right*timePercent;
             var thrust = Vector3.Zero;
@@ -62,9 +58,9 @@ namespace sgd_project
             if(Fuel > 0)
             {
                 RotationZ -= gamePad.ThumbSticks.Left.X * timePercent * Rps;
-                RotationZ = MathHelper.Clamp(RotationZ, -MathHelper.PiOver2, MathHelper.PiOver2);
+                RotationZ = MathHelper.Clamp(RotationZ, -MathHelper.PiOver4, MathHelper.PiOver4);
                 RotationX -= gamePad.ThumbSticks.Left.Y * timePercent * Rps;
-                RotationX = MathHelper.Clamp(RotationX, -MathHelper.PiOver2, MathHelper.PiOver2);
+                RotationX = MathHelper.Clamp(RotationX, -MathHelper.PiOver4, MathHelper.PiOver4);
             }
 
 
