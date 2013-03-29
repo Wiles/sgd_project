@@ -1,9 +1,4 @@
 Content\models\LEM\LEM.xnb
-Content\models\LEM\material_1_0.xnb
-Content\models\LEM\material_2_0.xnb
-Content\models\LEM\__Glass_Sky_Reflection__0.xnb
-Content\models\LEM\material_4_0.xnb
-Content\models\LEM\material_3_0.xnb
 Content\models\LEM\material_1.xnb
 Content\models\LEM\material_2.xnb
 Content\models\LEM\material_3.xnb
@@ -15,3 +10,10 @@ Content\Sounds\menuBack.xnb
 Content\Sounds\menuMove.xnb
 Content\Sounds\menuSelect.xnb
 Content\Fonts\Mono.xnb
+Content\models\crate\crate.xnb
+Content\models\LEM\material_1_0.xnb
+Content\models\LEM\material_2_0.xnb
+Content\models\LEM\__Glass_Sky_Reflection__0.xnb
+Content\models\LEM\material_4_0.xnb
+Content\models\LEM\material_3_0.xnb
+Content\models\crate\Wood_Lumber_ButtJoined__0.xnb

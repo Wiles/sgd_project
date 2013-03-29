@@ -8,12 +8,13 @@ namespace sgd_project
     {
         private Model _model;
         public Vector3 Position { get; private set; }
-        private float _rotationZ;
-        private float _rotationX;
+        public float RotationZ { get; private set; }
+        public float RotationX { get; private set; }
         private Vector3 _gravity;
-        private const float Rps = MathHelper.TwoPi;
+        private const float Rps = MathHelper.PiOver4;
+        private const float MaxThrust = 15f;
         private Vector3 _velocity;
-        public const float MinY = 1.78f;
+        public static readonly float MinY = 1.75f * Lander.Metre.Y;
 
         public Lem()
         {
@@ -35,24 +36,24 @@ namespace sgd_project
             var timePercent = delta/1000f;
             _velocity += _gravity * timePercent;
 
-            var thrust = new Vector3(0, gamePad.Triggers.Right * timePercent * 25f, 0);
+            var thrust = new Vector3(0, gamePad.Triggers.Right * timePercent * MaxThrust, 0);
 
 
-            thrust = Vector3.Transform(thrust, Matrix.CreateFromAxisAngle(Vector3.UnitX, _rotationX));
-            thrust = Vector3.Transform(thrust, Matrix.CreateFromAxisAngle(Vector3.UnitZ, _rotationZ));
+            thrust = Vector3.Transform(thrust, Matrix.CreateFromAxisAngle(Vector3.UnitX, RotationX));
+            thrust = Vector3.Transform(thrust, Matrix.CreateFromAxisAngle(Vector3.UnitZ, RotationZ));
 
             _velocity += thrust;
 
-            Position += _velocity * timePercent;
+            Position += _velocity * Lander.Metre * timePercent;
             if (Position.Y <= MinY)
             {
                 _velocity = Vector3.Zero;
                 Position = new Vector3(Position.X, MinY, Position.Z);
             }
-            _rotationZ += gamePad.ThumbSticks.Left.X * timePercent * Rps;
-            _rotationZ = MathHelper.Clamp(_rotationZ, -MathHelper.PiOver2, MathHelper.PiOver2);
-            _rotationX += gamePad.ThumbSticks.Left.Y * timePercent * Rps;
-            _rotationX = MathHelper.Clamp(_rotationX, -MathHelper.PiOver2, MathHelper.PiOver2);
+            RotationZ += gamePad.ThumbSticks.Left.X * timePercent * Rps;
+            RotationZ = MathHelper.Clamp(RotationZ, -MathHelper.PiOver2, MathHelper.PiOver2);
+            RotationX += gamePad.ThumbSticks.Left.Y * timePercent * Rps;
+            RotationX = MathHelper.Clamp(RotationX, -MathHelper.PiOver2, MathHelper.PiOver2);
         }
 
         public void Draw(Matrix camera, Matrix projection)
@@ -68,8 +69,8 @@ namespace sgd_project
                 {
                     effect.EnableDefaultLighting();
                     effect.World = transforms[mesh.ParentBone.Index] *
-                        Matrix.CreateRotationZ(_rotationZ) *
-                        Matrix.CreateRotationX(_rotationX) *
+                        Matrix.CreateRotationZ(RotationZ) *
+                        Matrix.CreateRotationX(RotationX) *
                         Matrix.CreateTranslation(Position);
                     effect.View = camera;
                     effect.Projection = projection;
