@@ -11,3 +11,7 @@ Content\models\LEM\material_4.xnb
 Content\models\LEM\__Glass_Sky_Reflection_.xnb
 Content\Images\grass.xnb
 Content\Shaders\Texture.xnb
+Content\Sounds\menuBack.xnb
+Content\Sounds\menuMove.xnb
+Content\Sounds\menuSelect.xnb
+Content\Fonts\Mono.xnb

@@ -1,5 +1,7 @@
+using System;
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 
@@ -12,8 +14,9 @@ namespace sgd_project
     {
         readonly GraphicsDeviceManager _graphics;
         private Texture2D _grassTexture;
+        private SpriteBatch _spriteBatch;
 
-        private readonly Lem _lem = new Lem();
+        private Lem _lem = new Lem();
 
         private const float Boundary = 1600.0f;
         private Model _lemModel;
@@ -23,11 +26,23 @@ namespace sgd_project
         private Effect _textureEffect;
         private EffectParameter _textureEffectWvp;
         private EffectParameter _textureEffectImage;
+        private SoundEffect _menuBack;
+        private SoundEffect _menuMove;
+        private SoundEffect _menuSelect;
+        private MenuScreen _pause;
+        private bool _running;
+        private MenuScreen _gameOver;
+        private Menu _menu;
         private const float CameraRps = MathHelper.TwoPi;
-        private Dictionary<string, Vector3> Gravity = new Dictionary<string, Vector3>();
+        private readonly Dictionary<string, Vector3> _gravity = new Dictionary<string, Vector3>();
 
         readonly VertexPositionColorTexture[] _groundVertices = new VertexPositionColorTexture[4];
-        
+        private SpriteFont _scoreFont;
+        private RasterizerState _rs;
+        private DepthStencilState _dss;
+        private BlendState _bs;
+        private SamplerState _ss;
+
         public Game1()
         {
             _graphics = new GraphicsDeviceManager(this);
@@ -43,10 +58,10 @@ namespace sgd_project
         protected override void Initialize()
         {
             //Equitorial Surface Gravity as listed on Wikipedia
-            Gravity.Add("moon", new Vector3(0, -1.622f, 0));
-            Gravity.Add("earth", new Vector3(0, -9.780327f, 0));
-            Gravity.Add("jupiter", new Vector3(0, -24.79f, 0));
-            Gravity.Add("sun", new Vector3(0, -274.0f, 0));
+            _gravity.Add("moon", new Vector3(0, -1.622f, 0));
+            _gravity.Add("earth", new Vector3(0, -9.780327f, 0));
+            _gravity.Add("jupiter", new Vector3(0, -24.79f, 0));
+            _gravity.Add("sun", new Vector3(0, -274.0f, 0));
 
             _graphics.GraphicsDevice.RasterizerState = RasterizerState.CullNone;
 
@@ -91,7 +106,87 @@ namespace sgd_project
             pos.Z = border;
             _groundVertices[3] = new VertexPositionColorTexture(pos, color, uv);
 
+
+            _menu = new Menu();
+            InitMenu();
+
+            //Using the sprite batch messes up these settings
+            _rs = _graphics.GraphicsDevice.RasterizerState;
+            _dss = GraphicsDevice.DepthStencilState;
+            _bs = GraphicsDevice.BlendState;
+            _ss = GraphicsDevice.SamplerStates[0];
+
             base.Initialize();
+        }
+
+
+        /// <summary>
+        /// Inits the menu.
+        /// </summary>
+        private void InitMenu()
+        {
+            var start = new MenuScreen("Asteroids", null);
+            var about = new MenuScreen("About", null);
+            _pause = new MenuScreen("Paused", null);
+            _gameOver = new MenuScreen("Game Over", null);
+            var controls = new MenuScreen("Controls", null);
+
+            var e = new Dictionary<string, Action>
+                {
+                    {"Start Game", () => {
+                        _menu.MainMenuIndex = _menu.Screens.IndexOf(_pause);
+                        _menu.SelectedMenuScreen = _menu.MainMenuIndex;
+                        NewGame();}},   
+                    {"About", () => { _menu.SelectedMenuScreen = _menu.Screens.IndexOf(about); }},
+                    {"Controls", () => { _menu.SelectedMenuScreen = _menu.Screens.IndexOf(controls); }},
+                    {"Quit", Exit}
+                };
+
+            start.Elements = e;
+
+            e = new Dictionary<string, Action>
+                {
+                    {"Resume", () => { _running = true; }},
+                    {"New Game", NewGame},
+                    {"About", () => { _menu.SelectedMenuScreen = _menu.Screens.IndexOf(about); }},
+                    {"Controls", () => { _menu.SelectedMenuScreen = _menu.Screens.IndexOf(controls); }},
+                    {"Quit", Exit}
+                };
+
+            _pause.Elements = e;
+
+            e = new Dictionary<string, Action>
+                {
+                    {"New game", NewGame},
+                    {"Quit", Exit}
+                };
+
+            _gameOver.Elements = e;
+
+            e = new Dictionary<string, Action>
+                {
+                    {"Samuel Lewis & Thomas Kempton", null},
+                    {"Simulation and Game Development", null},
+                    {"Project - Post-Protoplanetary Disk Lander", null}
+                };
+
+            about.Elements = e;
+
+            e = new Dictionary<string, Action>
+                {
+                    {"TODO", null}
+                };
+
+            controls.Elements = e;
+
+            _menu.AddMenuScreen(start);
+            _menu.AddMenuScreen(_gameOver);
+            _menu.AddMenuScreen(about);
+            _menu.AddMenuScreen(_pause);
+            _menu.AddMenuScreen(controls);
+
+            _menu.SelectedMenuScreen = _menu.Screens.IndexOf(start);
+            _menu.MainMenuIndex = _menu.Screens.IndexOf(start);
         }
 
         /// <summary>
@@ -100,9 +195,15 @@ namespace sgd_project
         /// </summary>
         protected override void LoadContent()
         {
+            _spriteBatch = new SpriteBatch(GraphicsDevice);
             _grassTexture = Content.Load<Texture2D>("Images\\grass");
             _lemModel = Content.Load<Model>("models\\LEM\\LEM");
-            _lem.Init(new Vector3(0, Lem.MinY, 0), _lemModel, Gravity["earth"]);
+            _menuMove = Content.Load<SoundEffect>("Sounds\\menuMove");
+            _menuSelect = Content.Load<SoundEffect>("Sounds\\menuSelect");
+            _scoreFont = Content.Load<SpriteFont>("Fonts\\Mono");
+            _menuBack = Content.Load<SoundEffect>("Sounds\\menuBack");
+            _menu.Initialize(GraphicsDevice.Viewport, _scoreFont, _menuMove, _menuSelect, _menuBack);
+            _lem.Init(new Vector3(0, Lem.MinY, 0), _lemModel, _gravity["earth"]);
         }
 
         /// <summary>
@@ -120,19 +221,28 @@ namespace sgd_project
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Update(GameTime gameTime)
         {
+
             var delta = gameTime.ElapsedGameTime.Milliseconds;
-            // Allows the game to exit
             var gpState = GamePad.GetState(PlayerIndex.One);
 
-            if (gpState.Buttons.Back == ButtonState.Pressed)
-                Exit();
+            if(gpState.IsButtonDown(Buttons.Start))
+            {
+                _running = false;
+            }
 
-            _cameraHorizontalAngle += delta / 1000.0f * gpState.ThumbSticks.Right.Y * CameraRps;
-            _cameraHorizontalAngle = MathHelper.Clamp(_cameraHorizontalAngle, -MathHelper.PiOver2 * .95f, MathHelper.PiOver2 * .95f);
-            _cameraVerticalAngle -= delta / 1000.0f * gpState.ThumbSticks.Right.X * CameraRps;
+            if (_running)
+            {
+                _cameraHorizontalAngle += delta/1000.0f*gpState.ThumbSticks.Right.Y*CameraRps;
+                _cameraHorizontalAngle = MathHelper.Clamp(_cameraHorizontalAngle, -MathHelper.PiOver2*.95f,
+                                                          MathHelper.PiOver2*.95f);
+                _cameraVerticalAngle -= delta/1000.0f*gpState.ThumbSticks.Right.X*CameraRps;
 
-            _lem.Update(delta, gpState);
-
+                _lem.Update(delta, gpState);
+            }
+            else
+            {
+                _menu.Update(GraphicsDevice, gpState, delta);
+            }
             base.Update(gameTime);
         }
 
@@ -143,17 +253,33 @@ namespace sgd_project
         protected override void Draw(GameTime gameTime)
         {
             _graphics.GraphicsDevice.Clear(Color.CornflowerBlue);
+            if (_running)
+            {
+                // Copy any parent transforms.
+                var camera = Vector3.Transform(_cameraPosition,
+                                               Matrix.CreateFromAxisAngle(Vector3.UnitX, _cameraHorizontalAngle));
+                camera = Vector3.Transform(camera, Matrix.CreateFromAxisAngle(Vector3.UnitY, _cameraVerticalAngle));
+                // Draw the model. A model can have multiple meshes, so loop.
+                var look = Matrix.CreateLookAt(_lem.Position + camera, _lem.Position, Vector3.Up);
+                var projection = Matrix.CreatePerspectiveFieldOfView(
+                    MathHelper.ToRadians(45.0f), _graphics.GraphicsDevice.Viewport.AspectRatio,
+                    1.0f, 10000.0f);
+                _lem.Draw(look, projection);
+                DrawGround(look, projection);
+            }
+            else
+            {
 
-            // Copy any parent transforms.
-            var camera = Vector3.Transform(_cameraPosition, Matrix.CreateFromAxisAngle(Vector3.UnitX, _cameraHorizontalAngle));
-            camera = Vector3.Transform(camera, Matrix.CreateFromAxisAngle(Vector3.UnitY, _cameraVerticalAngle));
-            // Draw the model. A model can have multiple meshes, so loop.
-            var look = Matrix.CreateLookAt(_lem.Position + camera, _lem.Position, Vector3.Up);
-            var projection = Matrix.CreatePerspectiveFieldOfView(
-                        MathHelper.ToRadians(45.0f), _graphics.GraphicsDevice.Viewport.AspectRatio,
-                        1.0f, 10000.0f);
-            _lem.Draw(look, projection);
-            DrawGround(look, projection);
+                _spriteBatch.Begin();
+                _menu.Draw(_spriteBatch);
+                _spriteBatch.End();
+
+                GraphicsDevice.BlendState = _bs;
+                _graphics.GraphicsDevice.RasterizerState = _rs;
+                GraphicsDevice.DepthStencilState = _dss;
+
+                GraphicsDevice.SamplerStates[0] = _ss;
+            }
             base.Draw(gameTime);
         }
 
@@ -185,6 +311,13 @@ namespace sgd_project
             // set drawing format and vertex data then draw surface
             _graphics.GraphicsDevice.DrawUserPrimitives(
                                     primitiveType, vertexData, 0, numPrimitives);
+        }
+
+        public void NewGame()
+        {
+            _lem = new Lem();
+            _lem.Init(new Vector3(0, Lem.MinY, 0), _lemModel, _gravity["earth"]);
+            _running = true;
         }
     }
 }

@@ -69,8 +69,8 @@ namespace sgd_project
                     effect.EnableDefaultLighting();
                     effect.World = transforms[mesh.ParentBone.Index] *
                         Matrix.CreateRotationZ(_rotationZ) *
-                        Matrix.CreateRotationX(_rotationX)
-                        * Matrix.CreateTranslation(Position);
+                        Matrix.CreateRotationX(_rotationX) *
+                        Matrix.CreateTranslation(Position);
                     effect.View = camera;
                     effect.Projection = projection;
                 }
