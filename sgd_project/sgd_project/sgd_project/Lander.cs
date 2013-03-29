@@ -24,7 +24,7 @@ namespace sgd_project
         private Model _crate;
         private readonly Vector3 _cameraPosition = new Vector3(0.0f, 00.0f, 500.0f);
         private float _cameraHorizontalAngle = -MathHelper.PiOver4;
-        private float _cameraVerticalAngle = MathHelper.PiOver4;
+        private float _cameraVerticalAngle = 0;
         private Effect _textureEffect;
         private EffectParameter _textureEffectWvp;
         private EffectParameter _textureEffectImage;
@@ -235,10 +235,10 @@ namespace sgd_project
 
             if (_running)
             {
-                _cameraHorizontalAngle += delta/1000.0f*gpState.ThumbSticks.Right.Y*CameraRps;
-                _cameraHorizontalAngle = MathHelper.Clamp(_cameraHorizontalAngle, -MathHelper.PiOver2*.95f,
-                                                          MathHelper.PiOver2*.95f);
-                _cameraVerticalAngle -= delta/1000.0f*gpState.ThumbSticks.Right.X*CameraRps;
+              //  _cameraHorizontalAngle += delta/1000.0f*gpState.ThumbSticks.Right.Y*CameraRps;
+               // _cameraHorizontalAngle = MathHelper.Clamp(_cameraHorizontalAngle, -MathHelper.PiOver2*.95f,
+               //                                           MathHelper.PiOver2*.95f);
+              //  _cameraVerticalAngle -= delta/1000.0f*gpState.ThumbSticks.Right.X*CameraRps;
 
                 _lem.Update(delta, gpState);
             }

@@ -50,9 +50,9 @@ namespace sgd_project
                 _velocity = Vector3.Zero;
                 Position = new Vector3(Position.X, MinY, Position.Z);
             }
-            RotationZ += gamePad.ThumbSticks.Left.X * timePercent * Rps;
+            RotationZ -= gamePad.ThumbSticks.Left.X * timePercent * Rps;
             RotationZ = MathHelper.Clamp(RotationZ, -MathHelper.PiOver2, MathHelper.PiOver2);
-            RotationX += gamePad.ThumbSticks.Left.Y * timePercent * Rps;
+            RotationX -= gamePad.ThumbSticks.Left.Y * timePercent * Rps;
             RotationX = MathHelper.Clamp(RotationX, -MathHelper.PiOver2, MathHelper.PiOver2);
         }
 
