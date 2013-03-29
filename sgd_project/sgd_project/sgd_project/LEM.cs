@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework;
+﻿using System;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 
@@ -15,16 +16,18 @@ namespace sgd_project
         private const float MaxThrust = 15f;
         private Vector3 _velocity;
         public static readonly float MinY = 1.75f * Lander.Metre.Y;
+        public float Fuel { get; private set; }
 
         public Lem()
         {
         }
 
-        public void Init(Vector3 position, Model model, Vector3 gravity)
+        public void Init(Vector3 position, Model model, Vector3 gravity, float fuel)
         {
             _model = model;
             Position = position;
             _gravity = gravity;
+            Fuel = fuel;
         }
 
         public void Update(long delta, GamePadState gamePad)
@@ -36,24 +39,41 @@ namespace sgd_project
             var timePercent = delta/1000f;
             _velocity += _gravity * timePercent;
 
-            var thrust = new Vector3(0, gamePad.Triggers.Right * timePercent * MaxThrust, 0);
+            Fuel -= gamePad.Triggers.Right*timePercent;
+            var thrust = Vector3.Zero;
+            if(Fuel > 0)
+            {
+                thrust = new Vector3(0, gamePad.Triggers.Right * timePercent * MaxThrust, 0);
 
-
-            thrust = Vector3.Transform(thrust, Matrix.CreateFromAxisAngle(Vector3.UnitX, RotationX));
-            thrust = Vector3.Transform(thrust, Matrix.CreateFromAxisAngle(Vector3.UnitZ, RotationZ));
+                thrust = Vector3.Transform(thrust, Matrix.CreateFromAxisAngle(Vector3.UnitX, RotationX));
+                thrust = Vector3.Transform(thrust, Matrix.CreateFromAxisAngle(Vector3.UnitZ, RotationZ));   
+            }
 
             _velocity += thrust;
 
-            Position += _velocity * Lander.Metre * timePercent;
+            Position += _velocity*Lander.Metre*timePercent;
+
             if (Position.Y <= MinY)
             {
                 _velocity = Vector3.Zero;
                 Position = new Vector3(Position.X, MinY, Position.Z);
             }
-            RotationZ -= gamePad.ThumbSticks.Left.X * timePercent * Rps;
-            RotationZ = MathHelper.Clamp(RotationZ, -MathHelper.PiOver2, MathHelper.PiOver2);
-            RotationX -= gamePad.ThumbSticks.Left.Y * timePercent * Rps;
-            RotationX = MathHelper.Clamp(RotationX, -MathHelper.PiOver2, MathHelper.PiOver2);
+
+            if(Fuel > 0)
+            {
+                RotationZ -= gamePad.ThumbSticks.Left.X * timePercent * Rps;
+                RotationZ = MathHelper.Clamp(RotationZ, -MathHelper.PiOver2, MathHelper.PiOver2);
+                RotationX -= gamePad.ThumbSticks.Left.Y * timePercent * Rps;
+                RotationX = MathHelper.Clamp(RotationX, -MathHelper.PiOver2, MathHelper.PiOver2);
+            }
+
+
+            Fuel -= Math.Abs(gamePad.ThumbSticks.Left.X) * timePercent;
+            Fuel -= Math.Abs(gamePad.ThumbSticks.Left.Y) * timePercent;
+            if(Fuel < 0)
+            {
+                Fuel = 0;
+            }
         }
 
         public void Draw(Matrix camera, Matrix projection)

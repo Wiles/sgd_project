@@ -206,7 +206,7 @@ namespace sgd_project
             _menuBack = Content.Load<SoundEffect>("Sounds\\menuBack");
             _crate = Content.Load<Model>("models\\crate\\crate");
             _menu.Initialize(GraphicsDevice.Viewport, _scoreFont, _menuMove, _menuSelect, _menuBack);
-            _lem.Init(new Vector3(0, Lem.MinY, 0), _lemModel, _gravity["earth"]);
+            _lem.Init(new Vector3(0, Lem.MinY, 0), _lemModel, _gravity["earth"], 1000);
         }
 
         /// <summary>
@@ -256,51 +256,58 @@ namespace sgd_project
         protected override void Draw(GameTime gameTime)
         {
             _graphics.GraphicsDevice.Clear(Color.CornflowerBlue);
+            // Copy any parent transforms.
+            var camera = Vector3.Transform(_cameraPosition,
+                                           Matrix.CreateFromAxisAngle(Vector3.UnitX, _cameraHorizontalAngle));
+            camera = Vector3.Transform(camera, Matrix.CreateFromAxisAngle(Vector3.UnitY, _cameraVerticalAngle));
+            // Draw the model. A model can have multiple meshes, so loop.
+            var look = Matrix.CreateLookAt(_lem.Position + camera, _lem.Position, Vector3.Up);
+            var projection = Matrix.CreatePerspectiveFieldOfView(
+                MathHelper.ToRadians(45.0f), _graphics.GraphicsDevice.Viewport.AspectRatio,
+                1.0f, 10000.0f);
+            _lem.Draw(look, projection);
+
+
+            var transforms = new Matrix[_crate.Bones.Count];
+            _crate.CopyAbsoluteBoneTransformsTo(transforms);
+
+            foreach (var mesh in _crate.Meshes)
+            {
+                // This is where the mesh orientation is set, as well 
+                // as our camera and projection.
+                foreach (BasicEffect effect in mesh.Effects)
+                {
+                    effect.EnableDefaultLighting();
+                    effect.World = transforms[mesh.ParentBone.Index] *
+                        Matrix.CreateTranslation(new Vector3(0, .5f, 0) * Metre);
+                    effect.View = look;
+                    effect.Projection = projection;
+                }
+                // Draw the mesh, using the effects set above.
+                mesh.Draw();
+            }
+            DrawGround(look, projection);
+
             if (_running)
             {
-                // Copy any parent transforms.
-                var camera = Vector3.Transform(_cameraPosition,
-                                               Matrix.CreateFromAxisAngle(Vector3.UnitX, _cameraHorizontalAngle));
-                camera = Vector3.Transform(camera, Matrix.CreateFromAxisAngle(Vector3.UnitY, _cameraVerticalAngle));
-                // Draw the model. A model can have multiple meshes, so loop.
-                var look = Matrix.CreateLookAt(_lem.Position + camera, _lem.Position, Vector3.Up);
-                var projection = Matrix.CreatePerspectiveFieldOfView(
-                    MathHelper.ToRadians(45.0f), _graphics.GraphicsDevice.Viewport.AspectRatio,
-                    1.0f, 10000.0f);
-                _lem.Draw(look, projection);
 
-
-                var transforms = new Matrix[_crate.Bones.Count];
-                _crate.CopyAbsoluteBoneTransformsTo(transforms);
-
-                foreach (var mesh in _crate.Meshes)
-                {
-                    // This is where the mesh orientation is set, as well 
-                    // as our camera and projection.
-                    foreach (BasicEffect effect in mesh.Effects)
-                    {
-                        effect.EnableDefaultLighting();
-                        effect.World = transforms[mesh.ParentBone.Index] *
-                            Matrix.CreateTranslation(new Vector3(0,.5f,0) * Metre);
-                        effect.View = look;
-                        effect.Projection = projection;
-                    }
-                    // Draw the mesh, using the effects set above.
-                    mesh.Draw();
-                }
-
-                DrawGround(look, projection);
                 _spriteBatch.Begin();
                 float height = _scoreFont.MeasureString("_").Y;
                 _spriteBatch.DrawString(_scoreFont,
-                                       string.Format(@"X Rot.: {0}", MathHelper.ToDegrees(_lem.RotationX)),
+                                       string.Format(@"X Rot.: {0:0.00}", MathHelper.ToDegrees(_lem.RotationX)),
                                        new Vector2((GraphicsDevice.Viewport.Width / 2) + 2, height + 2),
                                        Color.White, 0.0f,
                                        Vector2.Zero,
                                        1.0f, SpriteEffects.None, 0.0f);
                 _spriteBatch.DrawString(_scoreFont,
-                                       string.Format(@"Y Rot.: {0}", MathHelper.ToDegrees(_lem.RotationZ)),
+                                       string.Format(@"Y Rot.: {0:0.00}", MathHelper.ToDegrees(_lem.RotationZ)),
                                        new Vector2((GraphicsDevice.Viewport.Width / 2) + 2, height * 2 + 2),
+                                       Color.White, 0.0f,
+                                       Vector2.Zero,
+                                       1.0f, SpriteEffects.None, 0.0f);
+                _spriteBatch.DrawString(_scoreFont,
+                                       string.Format(@"  Fuel: {0:0.00}", _lem.Fuel),
+                                       new Vector2((GraphicsDevice.Viewport.Width / 2) + 2, height * 3 + 2),
                                        Color.White, 0.0f,
                                        Vector2.Zero,
                                        1.0f, SpriteEffects.None, 0.0f);
@@ -357,7 +364,7 @@ namespace sgd_project
         public void NewGame()
         {
             _lem = new Lem();
-            _lem.Init(new Vector3(0, Lem.MinY, 0), _lemModel, _gravity["earth"]);
+            _lem.Init(new Vector3(0, Lem.MinY, 0), _lemModel, _gravity["earth"], 10);
             _running = true;
         }
     }
