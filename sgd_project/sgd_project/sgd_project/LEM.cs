@@ -13,7 +13,7 @@ namespace sgd_project
         public float RotationX { get; private set; }
         public Vector3 Gravity { get; set; }
         private const float Rps = MathHelper.PiOver4;
-        private const float MaxThrust = 15f;
+        private const float MaxThrust = 25f;
         private Vector3 _velocity;
         public static readonly float MinY = 1.75f * Lander.Metre.Y;
         public float Fuel { get; private set; }
@@ -67,6 +67,7 @@ namespace sgd_project
             {
                 if(keyboard.IsKeyDown(Keys.D)){
                     RotationZ += timePercent * Rps;
+                    Fuel -= timePercent;
 
                 }
                 else if(keyboard.IsKeyDown(Keys.A)){
@@ -82,6 +83,7 @@ namespace sgd_project
                 RotationZ = MathHelper.Clamp(RotationZ, -MathHelper.PiOver4, MathHelper.PiOver4);
                 if(keyboard.IsKeyDown(Keys.W)){
                     RotationX += timePercent * Rps;
+                    Fuel -= timePercent;
 
                 }
                 else if(keyboard.IsKeyDown(Keys.S)){

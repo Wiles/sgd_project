@@ -245,7 +245,7 @@ namespace sgd_project
             var gpState = GamePad.GetState(PlayerIndex.One);
             var kbState = Keyboard.GetState();
 
-            if(gpState.IsButtonDown(Buttons.Start))
+            if(gpState.IsButtonDown(Buttons.Start) || kbState.IsKeyDown(Keys.Escape))
             {
                 _running = false;
             }
