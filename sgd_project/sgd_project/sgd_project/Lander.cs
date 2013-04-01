@@ -261,7 +261,7 @@ namespace sgd_project
             }
             else
             {
-                _menu.Update(GraphicsDevice, gpState, delta);
+                _menu.Update(GraphicsDevice, gpState, kbState, delta);
             }
             base.Update(gameTime);
         }
