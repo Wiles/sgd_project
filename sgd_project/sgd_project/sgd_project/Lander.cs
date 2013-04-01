@@ -20,7 +20,7 @@ namespace sgd_project
 
         private Lem _lem = new Lem();
 
-        private const float Boundary = 16000.0f;
+        private const float Boundary = 160000.0f;
         private Model _lemModel;
         private Model _crate;
         private readonly Vector3 _cameraPosition = new Vector3(0.0f, 00.0f, 500.0f);
@@ -37,8 +37,8 @@ namespace sgd_project
         private MenuScreen _gameOver;
         private Menu _menu;
         private const float CameraRps = MathHelper.TwoPi;
-        private Vector3 _currentGravity;
-        private readonly Dictionary<string, Vector3> _gravity = new Dictionary<string, Vector3>();
+        private Body _currentGravity;
+        private readonly Dictionary<string, Body> _gravity = new Dictionary<string, Body>();
 
         readonly VertexPositionColorTexture[] _groundVertices = new VertexPositionColorTexture[4];
         private SpriteFont _scoreFont;
@@ -62,10 +62,10 @@ namespace sgd_project
         protected override void Initialize()
         {
             //Equitorial Surface Gravity as listed on Wikipedia
-            _gravity.Add("moon", new Vector3(0, -1.622f, 0));
-            _gravity.Add("earth", new Vector3(0, -9.780327f, 0));
-            _gravity.Add("jupiter", new Vector3(0, -24.79f, 0));
-            _gravity.Add("sun", new Vector3(0, -274.0f, 0));
+            _gravity.Add("moon", new Body(new Vector3(0, -1.622f, 0), new Vector3(0.0f,0.0f,0.0f)));
+            _gravity.Add("earth", new Body(new Vector3(0, -9.780327f, 0), new Vector3(1.0f,0.0f,0.0f)));
+            _gravity.Add("jupiter", new Body(new Vector3(0, -24.79f, 0), new Vector3(0.0f,0.0f,0.0f)));
+            _gravity.Add("sun", new Body(new Vector3(0, -274.0f, 0), new Vector3(0.0f,0.0f,0.0f)));
             _currentGravity = _gravity["earth"];
 
             _graphics.GraphicsDevice.RasterizerState = RasterizerState.CullNone;
@@ -187,7 +187,7 @@ namespace sgd_project
 
             controls.Elements = e;
 
-            e = _gravity.ToList().ToDictionary<KeyValuePair<string, Vector3>, string, Action>(
+            e = _gravity.ToList().ToDictionary<KeyValuePair<string, Body>, string, Action>(
                 pair => pair.Key, 
                 pair => (() =>
                     {
@@ -232,6 +232,10 @@ namespace sgd_project
         /// </summary>
         protected override void UnloadContent()
         {
+            _grassTexture.Dispose();
+            _menuMove.Dispose();
+            _menuSelect.Dispose();
+            _menuBack.Dispose();
         }
 
         /// <summary>
@@ -324,6 +328,12 @@ namespace sgd_project
                 _spriteBatch.DrawString(_scoreFont,
                                        string.Format(@"  Fuel: {0:0.00}", _lem.Fuel),
                                        new Vector2((GraphicsDevice.Viewport.Width / 2) + 2, height * 3 + 2),
+                                       Color.White, 0.0f,
+                                       Vector2.Zero,
+                                       1.0f, SpriteEffects.None, 0.0f);
+                _spriteBatch.DrawString(_scoreFont,
+                                       string.Format(@"  Height: {0:0.00}", (_lem.Position.Y - Lem.MinY) / Metre.Y),
+                                       new Vector2((GraphicsDevice.Viewport.Width / 2) + 2, height * 4 + 2),
                                        Color.White, 0.0f,
                                        Vector2.Zero,
                                        1.0f, SpriteEffects.None, 0.0f);

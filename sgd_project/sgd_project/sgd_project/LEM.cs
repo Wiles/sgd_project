@@ -11,14 +11,14 @@ namespace sgd_project
         public Vector3 Position { get; private set; }
         public float RotationZ { get; private set; }
         public float RotationX { get; private set; }
-        public Vector3 Gravity { get; set; }
+        public Body Gravity { get; set; }
         private const float Rps = MathHelper.PiOver4;
         private const float MaxThrust = 25f;
         private Vector3 _velocity;
         public static readonly float MinY = 1.75f * Lander.Metre.Y;
         public float Fuel { get; private set; }
-        
-        public void Init(Vector3 position, Model model, Vector3 gravity, float fuel)
+
+        public void Init(Vector3 position, Model model, Body gravity, float fuel)
         {
             _model = model;
             Position = position;
@@ -33,7 +33,7 @@ namespace sgd_project
                 return;
             }
             var timePercent = delta/1000f;
-            _velocity += Gravity * timePercent;
+            _velocity += (Gravity.Gravity + Gravity.Wind) * timePercent;
 
             var thrust = Vector3.Zero;
             if(Fuel > 0)
