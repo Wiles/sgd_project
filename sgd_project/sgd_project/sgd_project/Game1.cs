@@ -123,6 +123,7 @@ namespace sgd_project
             var delta = gameTime.ElapsedGameTime.Milliseconds;
             // Allows the game to exit
             var gpState = GamePad.GetState(PlayerIndex.One);
+            var kbState = Keyboard.GetState();
 
             if (gpState.Buttons.Back == ButtonState.Pressed)
                 Exit();
@@ -131,7 +132,7 @@ namespace sgd_project
             _cameraHorizontalAngle = MathHelper.Clamp(_cameraHorizontalAngle, -MathHelper.PiOver2 * .95f, MathHelper.PiOver2 * .95f);
             _cameraVerticalAngle -= delta / 1000.0f * gpState.ThumbSticks.Right.X * CameraRps;
 
-            _lem.Update(delta, gpState);
+            _lem.Update(delta, gpState, kbState);
 
             base.Update(gameTime);
         }

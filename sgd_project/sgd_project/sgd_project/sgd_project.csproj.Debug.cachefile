@@ -1,9 +1,4 @@
 Content\models\LEM\LEM.xnb
-Content\models\LEM\material_1_0.xnb
-Content\models\LEM\material_2_0.xnb
-Content\models\LEM\__Glass_Sky_Reflection__0.xnb
-Content\models\LEM\material_4_0.xnb
-Content\models\LEM\material_3_0.xnb
 Content\models\LEM\material_1.xnb
 Content\models\LEM\material_2.xnb
 Content\models\LEM\material_3.xnb
@@ -11,3 +6,8 @@ Content\models\LEM\material_4.xnb
 Content\models\LEM\__Glass_Sky_Reflection_.xnb
 Content\Images\grass.xnb
 Content\Shaders\Texture.xnb
+Content\models\LEM\material_1_0.xnb
+Content\models\LEM\material_2_0.xnb
+Content\models\LEM\__Glass_Sky_Reflection__0.xnb
+Content\models\LEM\material_4_0.xnb
+Content\models\LEM\material_3_0.xnb
