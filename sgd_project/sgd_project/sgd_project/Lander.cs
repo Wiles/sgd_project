@@ -47,6 +47,9 @@ namespace sgd_project
         private BlendState _bs;
         private SamplerState _ss;
 
+        private Viewport _mainView;
+        private Viewport _bottomView;
+
         public Lander()
         {
             _graphics = new GraphicsDeviceManager(this);
@@ -68,7 +71,7 @@ namespace sgd_project
             _gravity.Add("sun", new Body(new Vector3(0, -274.0f, 0), new Vector3(0.0f,0.0f,0.0f)));
             _currentGravity = _gravity["earth"];
 
-            _graphics.GraphicsDevice.RasterizerState = RasterizerState.CullNone;
+            GraphicsDevice.RasterizerState = RasterizerState.CullNone;
 
             _textureEffect = Content.Load<Effect>("Shaders\\Texture");
             _textureEffectWvp = _textureEffect.Parameters["wvpMatrix"];
@@ -116,7 +119,7 @@ namespace sgd_project
             InitMenu();
 
             //Using the sprite batch messes up these settings
-            _rs = _graphics.GraphicsDevice.RasterizerState;
+            _rs = GraphicsDevice.RasterizerState;
             _dss = GraphicsDevice.DepthStencilState;
             _bs = GraphicsDevice.BlendState;
             _ss = GraphicsDevice.SamplerStates[0];
@@ -214,6 +217,11 @@ namespace sgd_project
         /// </summary>
         protected override void LoadContent()
         {
+
+            _mainView = GraphicsDevice.Viewport;
+            _bottomView = _mainView;
+            _bottomView.Width = _mainView.Width / 3;
+            _bottomView.Height = _mainView.Height / 3;
             _spriteBatch = new SpriteBatch(GraphicsDevice);
             _grassTexture = Content.Load<Texture2D>("Images\\grass");
             _lemModel = Content.Load<Model>("models\\LEM\\LEM");
@@ -270,25 +278,15 @@ namespace sgd_project
             base.Update(gameTime);
         }
 
-        /// <summary>
-        /// This is called when the game should draw itself.
-        /// </summary>
-        /// <param name="gameTime">Provides a snapshot of timing values.</param>
-        protected override void Draw(GameTime gameTime)
+        private void DrawLem(Matrix look, Matrix projection)
         {
-            _graphics.GraphicsDevice.Clear(Color.CornflowerBlue);
-            // Copy any parent transforms.
-            var camera = Vector3.Transform(_cameraPosition,
-                                           Matrix.CreateFromAxisAngle(Vector3.UnitX, CameraHorizontalAngle));
-            camera = Vector3.Transform(camera, Matrix.CreateFromAxisAngle(Vector3.UnitY, CameraVerticalAngle));
-            // Draw the model. A model can have multiple meshes, so loop.
-            var look = Matrix.CreateLookAt(_lem.Position + camera, _lem.Position, Vector3.Up);
-            var projection = Matrix.CreatePerspectiveFieldOfView(
-                MathHelper.ToRadians(45.0f), _graphics.GraphicsDevice.Viewport.AspectRatio,
-                1.0f, 10000.0f);
             _lem.Draw(look, projection);
+        }
 
-
+        private void DrawScene(Matrix look, Matrix projection)
+        {
+        
+            
             var transforms = new Matrix[_crate.Bones.Count];
             _crate.CopyAbsoluteBoneTransformsTo(transforms);
 
@@ -309,6 +307,10 @@ namespace sgd_project
             }
             DrawGround(look, projection);
 
+        }
+
+        private void DrawHUD()
+        {
             if (_running)
             {
                 _spriteBatch.Begin();
@@ -350,10 +352,42 @@ namespace sgd_project
 
             //Reset values spritebatch changes
             GraphicsDevice.BlendState = _bs;
-            _graphics.GraphicsDevice.RasterizerState = _rs;
+            GraphicsDevice.RasterizerState = _rs;
             GraphicsDevice.DepthStencilState = _dss;
-
             GraphicsDevice.SamplerStates[0] = _ss;
+        
+        }
+
+        /// <summary>
+        /// This is called when the game should draw itself.
+        /// </summary>
+        /// <param name="gameTime">Provides a snapshot of timing values.</param>
+        protected override void Draw(GameTime gameTime)
+        {
+            GraphicsDevice.Viewport = _mainView;
+            GraphicsDevice.Clear(Color.CornflowerBlue);
+            // Copy any parent transforms.
+            var camera = Vector3.Transform(_cameraPosition,
+                                           Matrix.CreateFromAxisAngle(Vector3.UnitX, CameraHorizontalAngle));
+            camera = Vector3.Transform(camera, Matrix.CreateFromAxisAngle(Vector3.UnitY, CameraVerticalAngle));
+            // Draw the model. A model can have multiple meshes, so loop.
+            var look = Matrix.CreateLookAt(_lem.Position + camera, _lem.Position, Vector3.Up);
+            var projection = Matrix.CreatePerspectiveFieldOfView(
+                MathHelper.ToRadians(45.0f), GraphicsDevice.Viewport.AspectRatio,
+                1.0f, 10000.0f);
+            DrawLem(look, projection);
+            DrawScene(look, projection);
+            DrawHUD();
+
+            GraphicsDevice.Viewport = _bottomView;
+
+            look = Matrix.CreateLookAt(_lem.Position, new Vector3(_lem.Position.X, .5f, _lem.Position.Z + .1f), Vector3.Down);
+            projection = Matrix.CreatePerspectiveFieldOfView(
+                MathHelper.ToRadians(45.0f), GraphicsDevice.Viewport.AspectRatio,
+                1.0f, 10000.0f);
+
+            DrawScene(look, projection);
+
             base.Draw(gameTime);
         }
 
@@ -383,7 +417,7 @@ namespace sgd_project
             _textureEffect.Techniques[0].Passes[0].Apply();
 
             // set drawing format and vertex data then draw surface
-            _graphics.GraphicsDevice.DrawUserPrimitives(
+            GraphicsDevice.DrawUserPrimitives(
                                     primitiveType, vertexData, 0, numPrimitives);
         }
 
