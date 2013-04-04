@@ -152,7 +152,7 @@ namespace sgd_project
                     {"Start Game", () => {
                         _menu.MainMenuIndex = _menu.Screens.IndexOf(_pause);
                         _menu.SelectedMenuScreen = _menu.MainMenuIndex;
-                        NewGame();}},   
+                        NewGame();}},
                     {"Planet", () => { _menu.SelectedMenuScreen = _menu.Screens.IndexOf(planet); }},
                     {"About", () => { _menu.SelectedMenuScreen = _menu.Screens.IndexOf(about); }},
                     {"Controls", () => { _menu.SelectedMenuScreen = _menu.Screens.IndexOf(controls); }},
@@ -240,7 +240,7 @@ namespace sgd_project
             _menuBack = Content.Load<SoundEffect>("Sounds\\menuBack");
             _crate = Content.Load<Model>("models\\crate\\crate");
             _menu.Initialize(GraphicsDevice.Viewport, _scoreFont, _menuMove, _menuSelect, _menuBack);
-            _lem.Init(new Vector3(0, Lem.MinY, 0), _lemModel, _gravity["earth"], 100);
+            _lem.Init(new Vector3(0, Lem.MinY, 0), _lemModel, _lemModel,  _gravity["earth"], 100);
         }
 
         /// <summary>
@@ -376,9 +376,10 @@ namespace sgd_project
             GraphicsDevice.Viewport = _mainView;
             GraphicsDevice.Clear(Color.CornflowerBlue);
             // Copy any parent transforms.
-            var camera = Vector3.Transform(_cameraPosition,
-                                           Matrix.CreateFromAxisAngle(Vector3.UnitX, CameraHorizontalAngle));
-            camera = Vector3.Transform(camera, Matrix.CreateFromAxisAngle(Vector3.UnitY, CameraVerticalAngle));
+            Matrix m = 
+                Matrix.CreateFromAxisAngle(Vector3.UnitX, CameraHorizontalAngle) *
+                Matrix.CreateFromAxisAngle(Vector3.UnitY, CameraVerticalAngle);
+            var camera = Vector3.Transform(_cameraPosition, m);
             // Draw the model. A model can have multiple meshes, so loop.
             var look = Matrix.CreateLookAt(_lem.Position + camera, _lem.Position, Vector3.Up);
             var projection = Matrix.CreatePerspectiveFieldOfView(
@@ -434,7 +435,7 @@ namespace sgd_project
         public void NewGame()
         {
             _lem = new Lem();
-            _lem.Init(new Vector3(0, Lem.MinY, 0), _lemModel, _currentGravity, 100);
+            _lem.Init(new Vector3(0, Lem.MinY, 0), _lemModel, _lemModel, _currentGravity, 100);
             _running = true;
         }
     }

@@ -8,6 +8,7 @@ namespace sgd_project
     internal class Lem
     {
         private Model _model;
+        private Model _flame;
         public Vector3 Position { get; private set; }
         public float RotationZ { get; private set; }
         public float RotationX { get; private set; }
@@ -17,10 +18,12 @@ namespace sgd_project
         private Vector3 _velocity;
         public static readonly float MinY = 1.75f * Lander.Metre.Y;
         public float Fuel { get; private set; }
+        public float _thrust;
 
-        public void Init(Vector3 position, Model model, Body gravity, float fuel)
+        public void Init(Vector3 position, Model model, Model flame,  Body gravity, float fuel)
         {
             _model = model;
+            _flame = flame;
             Position = position;
             Gravity = gravity;
             Fuel = fuel;
@@ -40,12 +43,15 @@ namespace sgd_project
             {
                 if (keyboard.IsKeyDown(Keys.Space))
                 {
+                    _thrust = 1;
                     thrust = new Vector3(0, timePercent * MaxThrust, 0);
                     Fuel -= timePercent;
                 }
                 else
                 {
+                    
                     thrust = new Vector3(0, gamePad.Triggers.Right * timePercent * MaxThrust, 0);
+                    _thrust = gamePad.Triggers.Right;
                     Fuel -= gamePad.Triggers.Right * timePercent;
                 }
 
@@ -117,7 +123,9 @@ namespace sgd_project
                 foreach (BasicEffect effect in mesh.Effects)
                 {
                     effect.EnableDefaultLighting();
-                    effect.World = transforms[mesh.ParentBone.Index] *
+                    effect.World =
+                        Matrix.CreateRotationZ(MathHelper.ToRadians(45f)) *
+                        transforms[mesh.ParentBone.Index] *
                         Matrix.CreateRotationZ(RotationZ) *
                         Matrix.CreateRotationX(RotationX) *
                         Matrix.CreateTranslation(Position);
@@ -127,6 +135,38 @@ namespace sgd_project
                 // Draw the mesh, using the effects set above.
                 mesh.Draw();
             }
+
+            transforms = new Matrix[_flame.Bones.Count];
+            _flame.CopyAbsoluteBoneTransformsTo(transforms);
+
+            foreach (var mesh in _flame.Meshes)
+            {
+                Matrix m =  
+                    Matrix.CreateFromAxisAngle(Vector3.UnitZ, RotationZ) * 
+                    Matrix.CreateFromAxisAngle(Vector3.UnitX, RotationX);
+                var pos = Vector3.Transform(new Vector3(0, -1.5f, 0) * Lander.Metre, m);
+
+                // This is where the mesh orientation is set, as well 
+                // as our camera and projection.
+                foreach (BasicEffect effect in mesh.Effects)
+                {
+                    effect.EnableDefaultLighting();
+                    effect.World =
+                        Matrix.CreateScale(_thrust / 5) * 
+                        transforms[mesh.ParentBone.Index] *
+
+                        Matrix.CreateRotationZ(RotationZ) *
+                        Matrix.CreateRotationX(RotationX) *
+                        Matrix.CreateTranslation(Position + pos) 
+                        ;
+                    effect.View = camera;
+                    effect.Projection = projection;
+                }
+                // Draw the mesh, using the effects set above.
+                mesh.Draw();
+            }
+
+
         }
     }
 }
