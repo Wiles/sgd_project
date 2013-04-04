@@ -19,6 +19,8 @@ namespace sgd_project
         public static readonly float MinY = 1.75f * Lander.Metre.Y;
         public float Fuel { get; private set; }
         public float _thrust;
+        public float _thrustX;
+        public float _thrustZ;
 
         public void Init(Vector3 position, Model model, Model flame,  Body gravity, float fuel)
         {
@@ -74,14 +76,17 @@ namespace sgd_project
                 if(keyboard.IsKeyDown(Keys.D)){
                     RotationZ += timePercent * Rps;
                     Fuel -= timePercent;
+                    _thrustZ = -1;
 
                 }
                 else if(keyboard.IsKeyDown(Keys.A)){
                     RotationZ -= timePercent * Rps;
                     Fuel -= timePercent;
+                    _thrustZ = 1;
                 }
-                else {
-
+                else
+                {
+                    _thrustZ = gamePad.ThumbSticks.Left.X;
                     RotationZ += gamePad.ThumbSticks.Left.X * timePercent * Rps;
                     Fuel -= Math.Abs(gamePad.ThumbSticks.Left.X) * timePercent;
                 }
@@ -141,7 +146,7 @@ namespace sgd_project
 
             foreach (var mesh in _flame.Meshes)
             {
-                Matrix m =  
+                var m =  
                     Matrix.CreateFromAxisAngle(Vector3.UnitZ, RotationZ) * 
                     Matrix.CreateFromAxisAngle(Vector3.UnitX, RotationX);
                 var pos = Vector3.Transform(new Vector3(0, -1.5f, 0) * Lander.Metre, m);
@@ -152,7 +157,7 @@ namespace sgd_project
                 {
                     effect.EnableDefaultLighting();
                     effect.World =
-                        Matrix.CreateScale(_thrust / 5) * 
+                        Matrix.CreateScale(_thrust) * 
                         transforms[mesh.ParentBone.Index] *
 
                         Matrix.CreateRotationZ(RotationZ) *
@@ -165,8 +170,121 @@ namespace sgd_project
                 // Draw the mesh, using the effects set above.
                 mesh.Draw();
             }
+            if(_thrustZ > 0)
+            {
+                foreach (var mesh in _flame.Meshes)
+                {
+                    var m =
+                        Matrix.CreateFromAxisAngle(Vector3.UnitZ, RotationZ) *
+                        Matrix.CreateFromAxisAngle(Vector3.UnitX, RotationX);
+                    var pos = Vector3.Transform(new Vector3(1.3f, .35f, -0.05f) * Lander.Metre, m);
+
+                    // This is where the mesh orientation is set, as well 
+                    // as our camera and projection.
+                    foreach (BasicEffect effect in mesh.Effects)
+                    {
+                        effect.EnableDefaultLighting();
+                        effect.World =
+                            Matrix.CreateScale(_thrustZ * .2f) *
+                            transforms[mesh.ParentBone.Index] *
+
+                            Matrix.CreateRotationZ(RotationZ) *
+                            Matrix.CreateRotationX(RotationX) *
+                            Matrix.CreateTranslation(Position + pos)
+                            ;
+                        effect.View = camera;
+                        effect.Projection = projection;
+                    }
+                    // Draw the mesh, using the effects set above.
+                    mesh.Draw();
+                }
 
 
+                foreach (var mesh in _flame.Meshes)
+                {
+                    var m =
+                        Matrix.CreateFromAxisAngle(Vector3.UnitZ, RotationZ) *
+                        Matrix.CreateFromAxisAngle(Vector3.UnitX, RotationX);
+                    var pos = Vector3.Transform(new Vector3(-1.3f, 1.0f, 0.1f) * Lander.Metre, m);
+
+                    // This is where the mesh orientation is set, as well 
+                    // as our camera and projection.
+                    foreach (BasicEffect effect in mesh.Effects)
+                    {
+                        effect.EnableDefaultLighting();
+                        effect.World =
+                            Matrix.CreateScale(_thrustZ * - .2f) *
+                            transforms[mesh.ParentBone.Index] *
+
+                            Matrix.CreateRotationZ(RotationZ) *
+                            Matrix.CreateRotationX(RotationX) *
+                            Matrix.CreateTranslation(Position + pos)
+                            ;
+                        effect.View = camera;
+                        effect.Projection = projection;
+                    }
+                    // Draw the mesh, using the effects set above.
+                    mesh.Draw();
+                }
+                
+            } else
+            {
+                foreach (var mesh in _flame.Meshes)
+                {
+                    var m =
+                        Matrix.CreateFromAxisAngle(Vector3.UnitZ, RotationZ) *
+                        Matrix.CreateFromAxisAngle(Vector3.UnitX, RotationX);
+                    var pos = Vector3.Transform(new Vector3(1.3f, 1f, -0.05f) * Lander.Metre, m);
+
+                    // This is where the mesh orientation is set, as well 
+                    // as our camera and projection.
+                    foreach (BasicEffect effect in mesh.Effects)
+                    {
+                        effect.EnableDefaultLighting();
+                        effect.World =
+                            Matrix.CreateScale(_thrustZ * .2f) *
+                            transforms[mesh.ParentBone.Index] *
+
+                            Matrix.CreateRotationZ(RotationZ) *
+                            Matrix.CreateRotationX(RotationX) *
+                            Matrix.CreateTranslation(Position + pos)
+                            ;
+                        effect.View = camera;
+                        effect.Projection = projection;
+                    }
+                    // Draw the mesh, using the effects set above.
+                    mesh.Draw();
+                }
+
+
+                foreach (var mesh in _flame.Meshes)
+                {
+                    var m =
+                        Matrix.CreateFromAxisAngle(Vector3.UnitZ, RotationZ) *
+                        Matrix.CreateFromAxisAngle(Vector3.UnitX, RotationX);
+                    var pos = Vector3.Transform(new Vector3(-1.3f, .35f, 0.1f) * Lander.Metre, m);
+
+                    // This is where the mesh orientation is set, as well 
+                    // as our camera and projection.
+                    foreach (BasicEffect effect in mesh.Effects)
+                    {
+                        effect.EnableDefaultLighting();
+                        effect.World =
+                            Matrix.CreateScale(_thrustZ * -.2f) *
+                            transforms[mesh.ParentBone.Index] *
+
+                            Matrix.CreateRotationZ(RotationZ) *
+                            Matrix.CreateRotationX(RotationX) *
+                            Matrix.CreateTranslation(Position + pos)
+                            ;
+                        effect.View = camera;
+                        effect.Projection = projection;
+                    }
+                    // Draw the mesh, using the effects set above.
+                    mesh.Draw();
+                }
+                
+            }
         }
     }
 }

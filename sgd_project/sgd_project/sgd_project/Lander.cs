@@ -21,8 +21,11 @@ namespace sgd_project
         private Lem _lem = new Lem();
 
         private const float Boundary = 160000.0f;
+
         private Model _lemModel;
         private Model _crate;
+        private Model _flame;
+
         private readonly Vector3 _cameraPosition = new Vector3(0.0f, 0.0f, 250.0f);
         private const float CameraHorizontalAngle = -MathHelper.PiOver4;
         private const float CameraVerticalAngle = 0;
@@ -239,8 +242,9 @@ namespace sgd_project
             _scoreFont = Content.Load<SpriteFont>("Fonts\\Mono");
             _menuBack = Content.Load<SoundEffect>("Sounds\\menuBack");
             _crate = Content.Load<Model>("models\\crate\\crate");
+            _flame   = Content.Load<Model>("models\\jet\\jet");
             _menu.Initialize(GraphicsDevice.Viewport, _scoreFont, _menuMove, _menuSelect, _menuBack);
-            _lem.Init(new Vector3(0, Lem.MinY, 0), _lemModel, _lemModel,  _gravity["earth"], 100);
+            _lem.Init(new Vector3(0, Lem.MinY, 0), _lemModel, _flame, _gravity["earth"], 100);
         }
 
         /// <summary>
@@ -435,7 +439,7 @@ namespace sgd_project
         public void NewGame()
         {
             _lem = new Lem();
-            _lem.Init(new Vector3(0, Lem.MinY, 0), _lemModel, _lemModel, _currentGravity, 100);
+            _lem.Init(new Vector3(0, Lem.MinY, 0), _lemModel, _flame, _currentGravity, 100);
             _running = true;
         }
     }
