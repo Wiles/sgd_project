@@ -65,10 +65,17 @@ namespace sgd_project
         protected override void Initialize()
         {
             //Equitorial Surface Gravity as listed on Wikipedia
-            _gravity.Add("moon", new Body(new Vector3(0, -1.622f, 0), new Vector3(0.0f,0.0f,0.0f)));
-            _gravity.Add("earth", new Body(new Vector3(0, -9.780327f, 0), new Vector3(1.0f,0.0f,0.0f)));
-            _gravity.Add("jupiter", new Body(new Vector3(0, -24.79f, 0), new Vector3(0.0f,0.0f,0.0f)));
-            _gravity.Add("sun", new Body(new Vector3(0, -274.0f, 0), new Vector3(0.0f,0.0f,0.0f)));
+            _gravity.Add("sun", new Body(new Vector3(0, -274.0f, 0), new Vector3(0.0f, 0.0f, 0.0f)));
+            _gravity.Add("mercury", new Body(new Vector3(0, -3.7f, 0), new Vector3(0.0f, 0.0f, 0.0f)));
+            _gravity.Add("venus", new Body(new Vector3(0, -8.87f, 0), new Vector3(0.0f, 0.0f, 0.0f)));
+            _gravity.Add("earth", new Body(new Vector3(0, -9.780327f, 0), new Vector3(1.0f, 0.0f, 0.0f)));
+            _gravity.Add("moon", new Body(new Vector3(0, -1.622f, 0), new Vector3(0.0f, 0.0f, 0.0f)));
+            _gravity.Add("mars", new Body(new Vector3(0, -3.711f, 0), new Vector3(0.0f, 0.0f, 0.0f)));
+            _gravity.Add("jupiter", new Body(new Vector3(0, -24.79f, 0), new Vector3(0.0f, 0.0f, 0.0f)));
+            _gravity.Add("saturn", new Body(new Vector3(0, -10.44f, 0), new Vector3(0.0f, 0.0f, 0.0f)));
+            _gravity.Add("uranus", new Body(new Vector3(0, -8.69f, 0), new Vector3(0.0f, 0.0f, 0.0f)));
+            _gravity.Add("neptune", new Body(new Vector3(0, -11.15f, 0), new Vector3(0.0f, 0.0f, 0.0f)));
+            _gravity.Add("pluto", new Body(new Vector3(0, -0.658f, 0), new Vector3(0.0f, 0.0f, 0.0f)));
             _currentGravity = _gravity["earth"];
 
             GraphicsDevice.RasterizerState = RasterizerState.CullNone;

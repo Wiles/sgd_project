@@ -13,7 +13,7 @@ namespace sgd_project
         public float RotationX { get; private set; }
         public Body Gravity { get; set; }
         private const float Rps = MathHelper.PiOver4;
-        private const float MaxThrust = 25f;
+        private const float MaxThrust = 15f;
         private Vector3 _velocity;
         public static readonly float MinY = 1.75f * Lander.Metre.Y;
         public float Fuel { get; private set; }
