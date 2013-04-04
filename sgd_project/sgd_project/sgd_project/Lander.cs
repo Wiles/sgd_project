@@ -23,7 +23,7 @@ namespace sgd_project
         private const float Boundary = 160000.0f;
         private Model _lemModel;
         private Model _crate;
-        private readonly Vector3 _cameraPosition = new Vector3(0.0f, 00.0f, 500.0f);
+        private readonly Vector3 _cameraPosition = new Vector3(0.0f, 0.0f, 250.0f);
         private const float CameraHorizontalAngle = -MathHelper.PiOver4;
         private const float CameraVerticalAngle = 0;
         private Effect _textureEffect;
@@ -219,9 +219,11 @@ namespace sgd_project
         {
 
             _mainView = GraphicsDevice.Viewport;
+
             _bottomView = _mainView;
-            _bottomView.Width = _mainView.Width / 3;
             _bottomView.Height = _mainView.Height / 3;
+            _bottomView.Width = _bottomView.Height;
+
             _spriteBatch = new SpriteBatch(GraphicsDevice);
             _grassTexture = Content.Load<Texture2D>("Images\\grass");
             _lemModel = Content.Load<Model>("models\\LEM\\LEM");
@@ -373,8 +375,9 @@ namespace sgd_project
             // Draw the model. A model can have multiple meshes, so loop.
             var look = Matrix.CreateLookAt(_lem.Position + camera, _lem.Position, Vector3.Up);
             var projection = Matrix.CreatePerspectiveFieldOfView(
-                MathHelper.ToRadians(45.0f), GraphicsDevice.Viewport.AspectRatio,
+                MathHelper.ToRadians(80.0f), GraphicsDevice.Viewport.AspectRatio,
                 1.0f, 10000.0f);
+
             DrawLem(look, projection);
             DrawScene(look, projection);
             DrawHUD();
