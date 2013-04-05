@@ -72,11 +72,18 @@ namespace sgd_project
                 Fuel -= Math.Abs(_thrustZ) * timePercent;
 
                 RotationZ = MathHelper.Clamp(RotationZ, -MathHelper.PiOver4, MathHelper.PiOver4);
-
+                if (RotationZ == -MathHelper.PiOver4 || RotationZ == MathHelper.PiOver4)
+                {
+                    _thrustZ = 0;
+                }
                 _thrustX = input.RotationX();
                 RotationX += _thrustX * timePercent * Rps;
                 Fuel -= Math.Abs(_thrustX) * timePercent;
                 RotationX = MathHelper.Clamp(RotationX, -MathHelper.PiOver4, MathHelper.PiOver4);
+                if (RotationX == -MathHelper.PiOver4 || RotationX == MathHelper.PiOver4)
+                {
+                    _thrustX = 0;
+                }
             }
 
 
