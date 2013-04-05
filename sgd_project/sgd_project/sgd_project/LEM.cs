@@ -14,7 +14,7 @@ namespace sgd_project
         public float RotationX { get; private set; }
         public Body Gravity { get; set; }
         private const float Rps = MathHelper.PiOver4;
-        private const float MaxThrust = 15f;
+        private const float MaxThrust = 5f;
         private Vector3 _velocity;
         public static readonly float MinY = 1.75f * Lander.Metre.Y;
         public float Fuel { get; private set; }
@@ -31,8 +31,12 @@ namespace sgd_project
             Fuel = fuel;
         }
 
-        public void Update(long delta, GamePadState gamePad, KeyboardState keyboard)
+        public void Update(long delta, Input input)
         {
+            _thrustZ = 0;
+            _thrustX = 0;
+            _thrust = 0;
+
             if(delta == 0)
             {
                 return;
@@ -43,19 +47,9 @@ namespace sgd_project
             var thrust = Vector3.Zero;
             if(Fuel > 0)
             {
-                if (keyboard.IsKeyDown(Keys.Space))
-                {
-                    _thrust = 1;
-                    thrust = new Vector3(0, timePercent * MaxThrust, 0);
-                    Fuel -= timePercent;
-                }
-                else
-                {
-                    
-                    thrust = new Vector3(0, gamePad.Triggers.Right * timePercent * MaxThrust, 0);
-                    _thrust = gamePad.Triggers.Right;
-                    Fuel -= gamePad.Triggers.Right * timePercent;
-                }
+                thrust = new Vector3(0, input.Thrust() * timePercent * MaxThrust, 0);
+                _thrust = input.Thrust();
+                Fuel -= input.Thrust() * timePercent;
 
                 thrust = Vector3.Transform(thrust, Matrix.CreateFromAxisAngle(Vector3.UnitX, RotationX));
                 thrust = Vector3.Transform(thrust, Matrix.CreateFromAxisAngle(Vector3.UnitZ, RotationZ));   
@@ -73,42 +67,15 @@ namespace sgd_project
 
             if(Fuel > 0)
             {
-                if(keyboard.IsKeyDown(Keys.D)){
-                    RotationZ += timePercent * Rps;
-                    Fuel -= timePercent;
-                    _thrustZ = -1;
-
-                }
-                else if(keyboard.IsKeyDown(Keys.A)){
-                    RotationZ -= timePercent * Rps;
-                    Fuel -= timePercent;
-                    _thrustZ = 1;
-                }
-                else
-                {
-                    _thrustZ = gamePad.ThumbSticks.Left.X;
-                    RotationZ += gamePad.ThumbSticks.Left.X * timePercent * Rps;
-                    Fuel -= Math.Abs(gamePad.ThumbSticks.Left.X) * timePercent;
-                }
+                _thrustZ = input.RotationZ();
+                RotationZ += _thrustZ * timePercent * Rps;
+                Fuel -= Math.Abs(_thrustZ) * timePercent;
 
                 RotationZ = MathHelper.Clamp(RotationZ, -MathHelper.PiOver4, MathHelper.PiOver4);
-                if(keyboard.IsKeyDown(Keys.W)){
-                    RotationX += timePercent * Rps;
-                    Fuel -= timePercent;
-                    _thrustX = -1;
 
-                }
-                else if(keyboard.IsKeyDown(Keys.S)){
-                    RotationX -= timePercent * Rps;
-                    Fuel -= timePercent;
-                    _thrustX = -1;
-                }
-                else {
-
-                    RotationX += gamePad.ThumbSticks.Left.Y * timePercent * Rps;
-                    Fuel -= Math.Abs(gamePad.ThumbSticks.Left.Y) * timePercent;
-                    _thrustX = gamePad.ThumbSticks.Left.Y;
-                }
+                _thrustX = input.RotationX();
+                RotationX += _thrustX * timePercent * Rps;
+                Fuel -= Math.Abs(_thrustX) * timePercent;
                 RotationX = MathHelper.Clamp(RotationX, -MathHelper.PiOver4, MathHelper.PiOver4);
             }
 

@@ -113,13 +113,13 @@ namespace sgd_project
         /// <param name="graphics">The graphics.</param>
         /// <param name="input">The input.</param>
         /// <param name="delta">The delta.</param>
-        public void Update(GraphicsDevice graphics, GamePadState input, KeyboardState keyboard, long delta)
+        public void Update(GraphicsDevice graphics, Input input, long delta)
         {
             MenuScreen screen = Screens[SelectedMenuScreen];
             int max = (Screens[SelectedMenuScreen] == Screens[MainMenuIndex])
                           ? screen.Elements.Count
                           : screen.Elements.Count + 1;
-            if (input.IsButtonDown(Buttons.DPadDown) || keyboard.IsKeyDown(Keys.S))
+            if (input.Down())
             {
                 if (_down == false)
                 {
@@ -136,7 +136,7 @@ namespace sgd_project
             {
                 _down = false;
             }
-            if (input.IsButtonDown(Buttons.DPadUp) || keyboard.IsKeyDown(Keys.W))
+            if (input.Up())
             {
                 if (_up == false)
                 {
@@ -153,7 +153,7 @@ namespace sgd_project
             {
                 _up = false;
             }
-            if (input.IsButtonDown(Buttons.A) || keyboard.IsKeyDown(Keys.Space))
+            if (input.Select())
             {
                 if (_enter == false)
                 {
@@ -180,7 +180,7 @@ namespace sgd_project
                 _enter = false;
             }
 
-            if (input.IsButtonDown(Buttons.Back) || keyboard.IsKeyDown(Keys.Escape))
+            if (input.Escape())
             {
                 if (_escape == false)
                 {

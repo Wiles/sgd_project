@@ -26,6 +26,8 @@ namespace sgd_project
         private Model _crate;
         private Model _flame;
 
+        private bool invertedControls;
+
         private readonly Vector3 _cameraPosition = new Vector3(0.0f, 0.0f, 250.0f);
         private const float CameraHorizontalAngle = -MathHelper.PiOver4;
         private const float CameraVerticalAngle = 0;
@@ -146,17 +148,39 @@ namespace sgd_project
             var start = new MenuScreen("Asteroids", null);
             var about = new MenuScreen("About", null);
             var planet = new MenuScreen("Planet", null);
+            var options = new MenuScreen("Options", null);
+            var inverted = new MenuScreen("Inverted Controls", options);
             _pause = new MenuScreen("Paused", null);
             _gameOver = new MenuScreen("Game Over", null);
             var controls = new MenuScreen("Controls", null);
 
             var e = new Dictionary<string, Action>
                 {
+                    {
+                        "On", () =>
+                            {
+                                invertedControls = true;
+                                _menu.SelectedMenuScreen = _menu.Screens.IndexOf(options);
+                            }
+                    },
+                    {
+                        "Off", () =>
+                            {
+                                invertedControls = false;
+                                _menu.SelectedMenuScreen = _menu.Screens.IndexOf(options);
+                            }
+                    }
+                };
+            inverted.Elements = e;
+
+            e = new Dictionary<string, Action>
+                {
                     {"Start Game", () => {
                         _menu.MainMenuIndex = _menu.Screens.IndexOf(_pause);
                         _menu.SelectedMenuScreen = _menu.MainMenuIndex;
                         NewGame();}},
                     {"Planet", () => { _menu.SelectedMenuScreen = _menu.Screens.IndexOf(planet); }},
+                    {"Options", () => { _menu.SelectedMenuScreen = _menu.Screens.IndexOf(options); }},
                     {"About", () => { _menu.SelectedMenuScreen = _menu.Screens.IndexOf(about); }},
                     {"Controls", () => { _menu.SelectedMenuScreen = _menu.Screens.IndexOf(controls); }},
                     {"Quit", Exit}
@@ -166,9 +190,23 @@ namespace sgd_project
 
             e = new Dictionary<string, Action>
                 {
+                    {
+                        "Inverted Controls", () =>
+                            {
+                                inverted.SelectedIndex = invertedControls ? 0 : 1;
+                                _menu.SelectedMenuScreen = _menu.Screens.IndexOf(inverted);
+                            }
+                    }
+                };
+
+            options.Elements = e;
+
+            e = new Dictionary<string, Action>
+                {
                     {"Resume", () => { _running = true; }},
                     {"New Game", NewGame},
                     {"Planet", () => { _menu.SelectedMenuScreen = _menu.Screens.IndexOf(planet); }},
+                    {"Options", () => { _menu.SelectedMenuScreen = _menu.Screens.IndexOf(options); }},
                     {"About", () => { _menu.SelectedMenuScreen = _menu.Screens.IndexOf(about); }},
                     {"Controls", () => { _menu.SelectedMenuScreen = _menu.Screens.IndexOf(controls); }},
                     {"Quit", Exit}
@@ -201,7 +239,7 @@ namespace sgd_project
             controls.Elements = e;
 
             e = _gravity.ToList().ToDictionary<KeyValuePair<string, Body>, string, Action>(
-                pair => pair.Key, 
+                pair => string.Format(@"{0, 10} G: {1:0.##}mpsps W: {2:0.##}mps", pair.Key, -pair.Value.Gravity.Y, pair.Value.Wind.Length()), 
                 pair => (() =>
                     {
                         _lem.Gravity = pair.Value;
@@ -212,6 +250,8 @@ namespace sgd_project
 
             _menu.AddMenuScreen(start);
             _menu.AddMenuScreen(_gameOver);
+            _menu.AddMenuScreen(inverted);
+            _menu.AddMenuScreen(options);
             _menu.AddMenuScreen(about);
             _menu.AddMenuScreen(_pause);
             _menu.AddMenuScreen(controls);
@@ -269,6 +309,7 @@ namespace sgd_project
             var delta = gameTime.ElapsedGameTime.Milliseconds;
             var gpState = GamePad.GetState(PlayerIndex.One);
             var kbState = Keyboard.GetState();
+            var input = new Input(gpState, kbState, invertedControls);
 
             if(gpState.IsButtonDown(Buttons.Start) || kbState.IsKeyDown(Keys.Escape))
             {
@@ -282,11 +323,11 @@ namespace sgd_project
                //                                           MathHelper.PiOver2*.95f);
               //  _cameraVerticalAngle -= delta/1000.0f*gpState.ThumbSticks.Right.X*CameraRps;
 
-                _lem.Update(delta, gpState, kbState);
+                _lem.Update(delta, input);
             }
             else
             {
-                _menu.Update(GraphicsDevice, gpState, kbState, delta);
+                _menu.Update(GraphicsDevice, input, delta);
             }
             base.Update(gameTime);
         }
