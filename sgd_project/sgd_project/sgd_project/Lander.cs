@@ -520,6 +520,19 @@ namespace sgd_project
         private void Collision()
         {
 
+            foreach(var bound in _lem.GetBounds())
+            {
+                foreach (var b in _currentGravity.Ground.GetBounds())
+                {
+                    if(bound.Intersects(b))
+                    {
+                        //touched the ground.
+                        GameOver();
+                        break;
+                    }
+                }
+            }
+
             foreach(var pad in _pads)
             {
                 foreach(var bound in pad.GetBounds())
