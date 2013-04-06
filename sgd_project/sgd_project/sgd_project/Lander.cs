@@ -564,6 +564,7 @@ namespace sgd_project
                             _lem.Velocity = Vector3.Zero;
                             break;
                         }
+
                         if(collisions == 0)
                         {
                             break;
@@ -574,12 +575,14 @@ namespace sgd_project
                         {
                             //Not fully on pad
                             GameOver();
+                            break;
                         }
 
                         if (Math.Abs(_lem.RotationX) > MathHelper.ToRadians(5) || Math.Abs(_lem.RotationZ) > MathHelper.ToRadians(5))
                         {
                             //landed to steeply
                             GameOver();
+                            break;
                         }
 
                         _lem.RotationX *= .98f;
