@@ -318,7 +318,7 @@ namespace sgd_project
             _flame   = Content.Load<Model>("models\\jet\\jet");
             _landingPad = Content.Load<Model>("models\\landingPad\\landingPad");
             _menu.Initialize(GraphicsDevice.Viewport, _scoreFont, _menuMove, _menuSelect, _menuBack);
-            _lem.Init(new Vector3(0, Lem.MinY, 0), _lemModel, _flame, _gravity["moon"], 100);
+            _lem.Init(new Vector3(0, 500, 0), _lemModel, _flame, _gravity["moon"], 100);
 
             var pad = new LandingPad();
             pad.Init(new Vector3(0,3,0) * Metre, _landingPad);
@@ -367,6 +367,9 @@ namespace sgd_project
             {
                 _menu.Update(GraphicsDevice, input, delta);
             }
+
+            Collision();
+
             base.Update(gameTime);
         }
 
@@ -394,11 +397,11 @@ namespace sgd_project
                 {
                     b.Draw(GraphicsDevice, look, projection);
                 }
-                foreach(var b in _pads)
+                foreach (var pad in _pads)
                 {
-                    foreach(var a in b.GetBounds())
+                    foreach (var bound in pad.GetBounds())
                     {
-                        //a.Draw(GraphicsDevice, look, projection);
+                       //bound.Draw(GraphicsDevice, look, projection);
                     }
                 }
             }
@@ -521,9 +524,79 @@ namespace sgd_project
 
         public void NewGame()
         {
+            _menu.MainMenuIndex = _menu.Screens.IndexOf(_pause);
+            _menu.SelectedMenuScreen = _menu.MainMenuIndex;
             _lem = new Lem();
-            _lem.Init(new Vector3(0, Lem.MinY + 100, 0), _lemModel, _flame, _currentGravity, 100);
+            _lem.Init(new Vector3(0, 500, 0), _lemModel, _flame, _currentGravity, 100);
             _running = true;
+        }
+
+        public void GameOver()
+        {
+            _running = false;
+            _menu.MainMenuIndex = _menu.Screens.IndexOf(_gameOver);
+            _menu.SelectedMenuScreen = _menu.MainMenuIndex;
+        }
+
+        private void Collision()
+        {
+
+            foreach(var pad in _pads)
+            {
+                foreach(var bound in pad.GetBounds())
+                {
+                    while (true)
+                    {
+                        var collisions = 0;
+                        foreach (var lemBound in _lem.GetBounds())
+                        {
+                            if (bound.Intersects(lemBound))
+                            {
+                                collisions++;
+                            }
+                        }
+                        if(collisions == 4)
+                        {
+                            if(_lem.Velocity.Y < 0)
+                            {
+                                _lem.Position = new Vector3(_lem.Position.X, bound.Max().Y + Lem.MinY + 2.15f, _lem.Position.Z);
+                            }
+                            if (_lem.Velocity.Length() > 10)
+                            {
+                                //Hit ground to hard
+                                GameOver();
+                            }
+                            _lem.Velocity = Vector3.Zero;
+                            break;
+                        }
+                        if(collisions == 0)
+                        {
+                            break;
+                        }
+
+
+                        if (Math.Abs(_lem.RotationX) == 0.00 && Math.Abs(_lem.RotationZ) == 0.0)
+                        {
+                            //Not fully on pad
+                            GameOver();
+                        }
+
+                        if (Math.Abs(_lem.RotationX) > MathHelper.ToRadians(5) || Math.Abs(_lem.RotationZ) > MathHelper.ToRadians(5))
+                        {
+                            //landed to steeply
+                            GameOver();
+                        }
+
+                        _lem.RotationX *= .98f;
+                        _lem.RotationZ *= .98f;
+                        if (Math.Abs(_lem.RotationX) < 0.01 && Math.Abs(_lem.RotationZ) < 0.01)
+                        {
+                            _lem.RotationX = 0;
+                            _lem.RotationZ = 0;
+                        }
+                    }
+                }
+            }
         }
     }
 }

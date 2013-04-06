@@ -3,7 +3,7 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace sgd_project
 {
-    class BoundSphere : IBound
+    public class BoundSphere : IBound
     {
         const int Slices = 10;
         const int Stacks = 10;
@@ -38,6 +38,16 @@ namespace sgd_project
         public void Draw(GraphicsDevice graphicsDevice, Matrix view, Matrix projection)
         {
             BoundingSphereRenderer.Render(graphicsDevice, this, view, projection);
+        }
+
+        public Vector3 Min()
+        {
+            return BoundingBox.CreateFromSphere(Sphere).Min;
+        }
+
+        public Vector3 Max()
+        {
+            return BoundingBox.CreateFromSphere(Sphere).Max;
         }
     }
 }

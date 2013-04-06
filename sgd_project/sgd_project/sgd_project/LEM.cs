@@ -1,7 +1,6 @@
 ﻿using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
 
 namespace sgd_project
 {
@@ -9,13 +8,13 @@ namespace sgd_project
     {
         private Model _model;
         private Model _flame;
-        public Vector3 Position { get; private set; }
-        public float RotationZ { get; private set; }
-        public float RotationX { get; private set; }
+        public Vector3 Position { get; set; }
+        public float RotationZ { get; set; }
+        public float RotationX { get; set; }
         public Body Gravity { get; set; }
         private const float Rps = MathHelper.PiOver4;
         private const float MaxThrust = 5f;
-        private Vector3 _velocity;
+        public Vector3 Velocity { get; set; }
         public static readonly float MinY = 1.75f * Lander.Metre.Y;
         public float Fuel { get; private set; }
         public float _thrust;
@@ -42,7 +41,7 @@ namespace sgd_project
                 return;
             }
             var timePercent = delta/1000f;
-            _velocity += (Gravity.Gravity + Gravity.Wind) * timePercent;
+            Velocity += (Gravity.Gravity + Gravity.Wind) * timePercent;
 
             var thrust = Vector3.Zero;
             if(Fuel > 0)
@@ -55,13 +54,13 @@ namespace sgd_project
                 thrust = Vector3.Transform(thrust, Matrix.CreateFromAxisAngle(Vector3.UnitZ, RotationZ));   
             }
 
-            _velocity += thrust;
+            Velocity += thrust;
 
-            Position += _velocity*Lander.Metre*timePercent;
+            Position += Velocity * Lander.Metre * timePercent;
 
             if (Position.Y <= MinY)
             {
-                _velocity = Vector3.Zero;
+                Velocity = Vector3.Zero;
                 Position = new Vector3(Position.X, MinY, Position.Z);
             }
 
@@ -369,17 +368,14 @@ namespace sgd_project
                     // Draw the mesh, using the effects set above.
                     mesh.Draw();
                 }
-
             }
         }
 
         public IBound[] GetBounds()
         {
-            var v = new Vector3(1.47f, -1.675f, 1.47f) * Lander.Metre;
             var m =
                 Matrix.CreateFromAxisAngle(Vector3.UnitZ, RotationZ) *
                 Matrix.CreateFromAxisAngle(Vector3.UnitX, RotationX);
-            v = Position + Vector3.Transform(v, m);
             return new IBound[]
                 {
                     new BoundSphere(new BoundingSphere(Position + Vector3.Transform((new Vector3(1.47f, -1.675f, 1.47f) * Lander.Metre), m), 5f)),

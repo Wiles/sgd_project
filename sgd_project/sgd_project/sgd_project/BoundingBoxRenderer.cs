@@ -20,23 +20,14 @@ namespace sgd_project
         /// <param name="projection">The current projection matrix.</param>
         /// <param name="color">The color to use drawing the lines of the box.</param>
         public static void Render(
-            BoundingBox box,
+            BoundBox box,
             GraphicsDevice graphicsDevice,
             Matrix view,
             Matrix projection,
             Color color)
         {
-            var corners = box.GetCorners();
-            var primitiveList = new VertexPositionColor[corners.Length];
 
             var boxEffect = new BasicEffect(graphicsDevice);
-
-            // Assign the 8 box vertices
-            for (var i = 0; i < corners.Length; i++)
-            {
-                primitiveList[i] = new VertexPositionColor(corners[i], color);
-            }
-
             /* Set your own effect parameters here */
             boxEffect.World = Matrix.Identity;
             boxEffect.View = view;
@@ -48,7 +39,7 @@ namespace sgd_project
             {
                 pass.Apply();
                 graphicsDevice.DrawUserIndexedPrimitives(
-                    PrimitiveType.LineList, primitiveList, 0, 8,
+                    PrimitiveType.LineList, box.Vertices, 0, 8,
                     BoxIndices, 0, 12);
             }
         }
