@@ -312,7 +312,7 @@ namespace sgd_project
 
             //Equitorial Surface Gravity as listed on Wikipedia
             _gravity.Add("sun", new Body(new Vector3(0, -274.0f, 0), new Vector3(0.0f, 0.0f, 0.0f), ground));
-            _gravity.Add("mercury", new Body(new Vector3(0, -3.7f, 0), new Vector3(0.0f, 0.0f, 0.0f), ground));
+            _gravity.Add("mercury", new Body(new Vector3(0, -3.7f, 0), new Vector3(1.0f, 0.0f, 1.0f), ground));
             _gravity.Add("venus", new Body(new Vector3(0, -8.87f, 0), new Vector3(0.0f, 0.0f, 0.0f), ground));
             _gravity.Add("earth", new Body(new Vector3(0, -9.780327f, 0), new Vector3(1.0f, 0.0f, 0.0f), ground));
             _gravity.Add("moon", new Body(new Vector3(0, -1.622f, 0), new Vector3(0.0f, 0.0f, 0.0f), ground));
