@@ -72,19 +72,6 @@ namespace sgd_project
         /// </summary>
         protected override void Initialize()
         {
-            //Equitorial Surface Gravity as listed on Wikipedia
-            _gravity.Add("sun", new Body(new Vector3(0, -274.0f, 0), new Vector3(0.0f, 0.0f, 0.0f)));
-            _gravity.Add("mercury", new Body(new Vector3(0, -3.7f, 0), new Vector3(0.0f, 0.0f, 0.0f)));
-            _gravity.Add("venus", new Body(new Vector3(0, -8.87f, 0), new Vector3(0.0f, 0.0f, 0.0f)));
-            _gravity.Add("earth", new Body(new Vector3(0, -9.780327f, 0), new Vector3(1.0f, 0.0f, 0.0f)));
-            _gravity.Add("moon", new Body(new Vector3(0, -1.622f, 0), new Vector3(0.0f, 0.0f, 0.0f)));
-            _gravity.Add("mars", new Body(new Vector3(0, -3.711f, 0), new Vector3(0.0f, 0.0f, 0.0f)));
-            _gravity.Add("jupiter", new Body(new Vector3(0, -24.79f, 0), new Vector3(0.0f, 0.0f, 0.0f)));
-            _gravity.Add("saturn", new Body(new Vector3(0, -10.44f, 0), new Vector3(0.0f, 0.0f, 0.0f)));
-            _gravity.Add("uranus", new Body(new Vector3(0, -8.69f, 0), new Vector3(0.0f, 0.0f, 0.0f)));
-            _gravity.Add("neptune", new Body(new Vector3(0, -11.15f, 0), new Vector3(0.0f, 0.0f, 0.0f)));
-            _gravity.Add("pluto", new Body(new Vector3(0, -0.658f, 0), new Vector3(0.0f, 0.0f, 0.0f)));
-            _currentGravity = _gravity["moon"];
 
             GraphicsDevice.RasterizerState = RasterizerState.CullNone;
 
@@ -94,6 +81,7 @@ namespace sgd_project
             BoundingSphereRenderer.Init(_positionColorEffectWvp, _positionColorEffect);
             _textureEffectWvp = _textureEffect.Parameters["wvpMatrix"];
             _textureEffectImage = _textureEffect.Parameters["textureImage"];
+
 
             const float border = Boundary;
             var uv = new Vector2(0.0f, 0.0f);
@@ -318,7 +306,28 @@ namespace sgd_project
             _flame   = Content.Load<Model>("models\\jet\\jet");
             _landingPad = Content.Load<Model>("models\\landingPad\\landingPad");
             _menu.Initialize(GraphicsDevice.Viewport, _scoreFont, _menuMove, _menuSelect, _menuBack);
-            _lem.Init(new Vector3(0, 500, 0), _lemModel, _flame, _gravity["moon"], 100);
+
+            
+            var ground = new Ground();
+            ground.Init(_textureEffect, _textureEffectWvp, _textureEffectImage, _grassTexture, _groundVertices);
+
+            //Equitorial Surface Gravity as listed on Wikipedia
+            _gravity.Add("sun", new Body(new Vector3(0, -274.0f, 0), new Vector3(0.0f, 0.0f, 0.0f), ground));
+            _gravity.Add("mercury", new Body(new Vector3(0, -3.7f, 0), new Vector3(0.0f, 0.0f, 0.0f), ground));
+            _gravity.Add("venus", new Body(new Vector3(0, -8.87f, 0), new Vector3(0.0f, 0.0f, 0.0f), ground));
+            _gravity.Add("earth", new Body(new Vector3(0, -9.780327f, 0), new Vector3(1.0f, 0.0f, 0.0f), ground));
+            _gravity.Add("moon", new Body(new Vector3(0, -1.622f, 0), new Vector3(0.0f, 0.0f, 0.0f), ground));
+            _gravity.Add("mars", new Body(new Vector3(0, -3.711f, 0), new Vector3(0.0f, 0.0f, 0.0f), ground));
+            _gravity.Add("jupiter", new Body(new Vector3(0, -24.79f, 0), new Vector3(0.0f, 0.0f, 0.0f), ground));
+            _gravity.Add("saturn", new Body(new Vector3(0, -10.44f, 0), new Vector3(0.0f, 0.0f, 0.0f), ground));
+            _gravity.Add("uranus", new Body(new Vector3(0, -8.69f, 0), new Vector3(0.0f, 0.0f, 0.0f), ground));
+            _gravity.Add("neptune", new Body(new Vector3(0, -11.15f, 0), new Vector3(0.0f, 0.0f, 0.0f), ground));
+            _gravity.Add("pluto", new Body(new Vector3(0, -0.658f, 0), new Vector3(0.0f, 0.0f, 0.0f), ground));
+
+            _currentGravity = _gravity["moon"];
+
+
+            _lem.Init(new Vector3(0, 500, 0), _lemModel, _flame, _currentGravity, 100);
 
             var pad = new LandingPad();
             pad.Init(new Vector3(0,3,0) * Metre, _landingPad);
@@ -384,8 +393,7 @@ namespace sgd_project
             {
                pad.Draw(look, projection);
             }
-
-            DrawGround(look, projection);
+            _currentGravity.Ground.Draw(GraphicsDevice, look, projection);
 
         }
 
@@ -492,35 +500,6 @@ namespace sgd_project
             base.Draw(gameTime);
         }
 
-        private void DrawGround(Matrix view, Matrix projection)
-        {
-            // 1: declare matrices
-
-            // 2: initialize matrices
-            Matrix translation = Matrix.CreateTranslation(0.0f, 0.0f, 0.0f);
-
-            // 3: build cumulative world matrix using I.S.R.O.T. sequence
-            // identity, scale, rotate, orbit(translate & rotate), translate
-            Matrix world = translation;
-
-            // 4: set shader parameters
-            _textureEffectWvp.SetValue(world * view * projection);
-            _textureEffectImage.SetValue(_grassTexture);
-
-            // 5: draw object - primitive type, vertex data, # primitives
-            TextureShader(PrimitiveType.TriangleStrip, _groundVertices, 2);
-        }
-
-        private void TextureShader(PrimitiveType primitiveType,
-                                   VertexPositionColorTexture[] vertexData,
-                                   int numPrimitives)
-        {
-            _textureEffect.Techniques[0].Passes[0].Apply();
-
-            // set drawing format and vertex data then draw surface
-            GraphicsDevice.DrawUserPrimitives(
-                                    primitiveType, vertexData, 0, numPrimitives);
-        }
 
         public void NewGame()
         {
@@ -563,7 +542,7 @@ namespace sgd_project
                             }
                             if (_lem.Velocity.Length() > 10)
                             {
-                                //Hit ground to hard
+                                //Hit ground too hard
                                 GameOver();
                             }
                             _lem.Velocity = Vector3.Zero;

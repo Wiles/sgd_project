@@ -10,10 +10,13 @@ namespace sgd_project
     {
         public Vector3 Gravity { get; private set; }
         public Vector3 Wind { get; private set; }
-        public Body(Vector3 gravity, Vector3 wind)
+        public Ground Ground { get; private set; }
+
+        public Body(Vector3 gravity, Vector3 wind, Ground ground)
         {
             Gravity = gravity;
             Wind = wind;
+            Ground = ground;
         }
     }
 }
