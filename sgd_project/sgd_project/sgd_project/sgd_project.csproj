@@ -109,6 +109,7 @@
   <ItemGroup>
     <Compile Include="Body.cs" />
     <Compile Include="Input.cs" />
+    <Compile Include="LandingPad.cs" />
     <Compile Include="LEM.cs" />
     <Compile Include="Menu.cs" />
     <Compile Include="MenuScreen.cs" />

@@ -17,16 +17,17 @@ namespace sgd_project
         public static readonly Vector3 Metre = new Vector3(39.4f, 39.4f, 39.4f);
         private Texture2D _grassTexture;
         private SpriteBatch _spriteBatch;
+        private readonly List<LandingPad> _pads = new List<LandingPad>();
 
         private Lem _lem = new Lem();
 
         private const float Boundary = 160000.0f;
 
         private Model _lemModel;
-        private Model _crate;
         private Model _flame;
+        private Model _landingPad;
 
-        private bool invertedControls;
+        private bool _invertedControls;
 
         private readonly Vector3 _cameraPosition = new Vector3(0.0f, 0.0f, 250.0f);
         private const float CameraHorizontalAngle = -MathHelper.PiOver4;
@@ -39,9 +40,9 @@ namespace sgd_project
         private SoundEffect _menuSelect;
         private MenuScreen _pause;
         private bool _running;
+        private bool _debug;
         private MenuScreen _gameOver;
         private Menu _menu;
-        private const float CameraRps = MathHelper.TwoPi;
         private Body _currentGravity;
         private readonly Dictionary<string, Body> _gravity = new Dictionary<string, Body>();
 
@@ -81,7 +82,7 @@ namespace sgd_project
             _gravity.Add("uranus", new Body(new Vector3(0, -8.69f, 0), new Vector3(0.0f, 0.0f, 0.0f)));
             _gravity.Add("neptune", new Body(new Vector3(0, -11.15f, 0), new Vector3(0.0f, 0.0f, 0.0f)));
             _gravity.Add("pluto", new Body(new Vector3(0, -0.658f, 0), new Vector3(0.0f, 0.0f, 0.0f)));
-            _currentGravity = _gravity["earth"];
+            _currentGravity = _gravity["moon"];
 
             GraphicsDevice.RasterizerState = RasterizerState.CullNone;
 
@@ -150,6 +151,7 @@ namespace sgd_project
             var planet = new MenuScreen("Planet", null);
             var options = new MenuScreen("Options", null);
             var inverted = new MenuScreen("Inverted Controls", options);
+            var debug = new MenuScreen("Debug Mode", options);
             _pause = new MenuScreen("Paused", null);
             _gameOver = new MenuScreen("Game Over", null);
             var controls = new MenuScreen("Controls", null);
@@ -159,19 +161,39 @@ namespace sgd_project
                     {
                         "On", () =>
                             {
-                                invertedControls = true;
+                                _invertedControls = true;
                                 _menu.SelectedMenuScreen = _menu.Screens.IndexOf(options);
                             }
                     },
                     {
                         "Off", () =>
                             {
-                                invertedControls = false;
+                                _invertedControls = false;
                                 _menu.SelectedMenuScreen = _menu.Screens.IndexOf(options);
                             }
                     }
                 };
             inverted.Elements = e;
+
+
+            e = new Dictionary<string, Action>
+                {
+                    {
+                        "On", () =>
+                            {
+                                _debug = true;
+                                _menu.SelectedMenuScreen = _menu.Screens.IndexOf(options);
+                            }
+                    },
+                    {
+                        "Off", () =>
+                            {
+                                _debug = false;
+                                _menu.SelectedMenuScreen = _menu.Screens.IndexOf(options);
+                            }
+                    }
+                };
+            debug.Elements = e;
 
             e = new Dictionary<string, Action>
                 {
@@ -193,8 +215,15 @@ namespace sgd_project
                     {
                         "Inverted Controls", () =>
                             {
-                                inverted.SelectedIndex = invertedControls ? 0 : 1;
+                                inverted.SelectedIndex = _invertedControls ? 0 : 1;
                                 _menu.SelectedMenuScreen = _menu.Screens.IndexOf(inverted);
+                            }
+                    },
+                    {
+                        "Debug Mode", () =>
+                            {
+                                debug.SelectedIndex = _debug ? 0 : 1;
+                                _menu.SelectedMenuScreen = _menu.Screens.IndexOf(debug);
                             }
                     }
                 };
@@ -251,6 +280,7 @@ namespace sgd_project
             _menu.AddMenuScreen(start);
             _menu.AddMenuScreen(_gameOver);
             _menu.AddMenuScreen(inverted);
+            _menu.AddMenuScreen(debug);
             _menu.AddMenuScreen(options);
             _menu.AddMenuScreen(about);
             _menu.AddMenuScreen(_pause);
@@ -281,10 +311,14 @@ namespace sgd_project
             _menuSelect = Content.Load<SoundEffect>("Sounds\\menuSelect");
             _scoreFont = Content.Load<SpriteFont>("Fonts\\Mono");
             _menuBack = Content.Load<SoundEffect>("Sounds\\menuBack");
-            _crate = Content.Load<Model>("models\\crate\\crate");
             _flame   = Content.Load<Model>("models\\jet\\jet");
+            _landingPad = Content.Load<Model>("models\\landingPad\\landingPad");
             _menu.Initialize(GraphicsDevice.Viewport, _scoreFont, _menuMove, _menuSelect, _menuBack);
-            _lem.Init(new Vector3(0, Lem.MinY, 0), _lemModel, _flame, _gravity["earth"], 100);
+            _lem.Init(new Vector3(0, Lem.MinY, 0), _lemModel, _flame, _gravity["moon"], 100);
+
+            var pad = new LandingPad();
+            pad.Init(new Vector3(0,3,0) * Metre, _landingPad);
+            _pads.Add(pad);
         }
 
         /// <summary>
@@ -309,7 +343,7 @@ namespace sgd_project
             var delta = gameTime.ElapsedGameTime.Milliseconds;
             var gpState = GamePad.GetState(PlayerIndex.One);
             var kbState = Keyboard.GetState();
-            var input = new Input(gpState, kbState, invertedControls);
+            var input = new Input(gpState, kbState, _invertedControls);
 
             if(gpState.IsButtonDown(Buttons.Start) || kbState.IsKeyDown(Keys.Escape))
             {
@@ -339,31 +373,21 @@ namespace sgd_project
 
         private void DrawScene(Matrix look, Matrix projection)
         {
-        
-            
-            var transforms = new Matrix[_crate.Bones.Count];
-            _crate.CopyAbsoluteBoneTransformsTo(transforms);
-
-            foreach (var mesh in _crate.Meshes)
+            foreach(var pad in _pads)
             {
-                // This is where the mesh orientation is set, as well 
-                // as our camera and projection.
-                foreach (BasicEffect effect in mesh.Effects)
-                {
-                    effect.EnableDefaultLighting();
-                    effect.World = transforms[mesh.ParentBone.Index] *
-                        Matrix.CreateTranslation(new Vector3(0, .5f, 0) * Metre);
-                    effect.View = look;
-                    effect.Projection = projection;
-                }
-                // Draw the mesh, using the effects set above.
-                mesh.Draw();
+                pad.Draw(look, projection);
             }
+
             DrawGround(look, projection);
 
         }
 
-        private void DrawHUD()
+        private void DrawDebug(Matrix look, Matrix projection)
+        {
+            
+        }
+
+        private void DrawHud()
         {
             if (_running)
             {
@@ -433,7 +457,7 @@ namespace sgd_project
 
             DrawLem(look, projection);
             DrawScene(look, projection);
-            DrawHUD();
+            DrawHud();
 
             GraphicsDevice.Viewport = _bottomView;
 

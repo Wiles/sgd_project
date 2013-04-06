@@ -13,3 +13,5 @@ _ReSharper.*
 Ankh.NoLoad
 publish/
 *.cachefile
+AutoSave_*.skp
+*.skb
