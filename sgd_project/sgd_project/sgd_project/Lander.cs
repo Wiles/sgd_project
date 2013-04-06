@@ -578,7 +578,7 @@ namespace sgd_project
                             break;
                         }
 
-                        if (Math.Abs(_lem.RotationX) > MathHelper.ToRadians(5) || Math.Abs(_lem.RotationZ) > MathHelper.ToRadians(5))
+                        if (Math.Abs(_lem.RotationX) > MathHelper.ToRadians(5) || Math.Abs(_lem.RotationZ) > MathHelper.ToRadians(5) && _lem.Velocity.Y < 0)
                         {
                             //landed to steeply
                             GameOver();
