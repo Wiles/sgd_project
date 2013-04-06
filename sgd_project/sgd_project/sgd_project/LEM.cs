@@ -372,5 +372,21 @@ namespace sgd_project
 
             }
         }
+
+        public IBound[] GetBounds()
+        {
+            var v = new Vector3(1.47f, -1.675f, 1.47f) * Lander.Metre;
+            var m =
+                Matrix.CreateFromAxisAngle(Vector3.UnitZ, RotationZ) *
+                Matrix.CreateFromAxisAngle(Vector3.UnitX, RotationX);
+            v = Position + Vector3.Transform(v, m);
+            return new IBound[]
+                {
+                    new BoundSphere(new BoundingSphere(Position + Vector3.Transform((new Vector3(1.47f, -1.675f, 1.47f) * Lander.Metre), m), 5f)),
+                    new BoundSphere(new BoundingSphere(Position + Vector3.Transform((new Vector3(-1.47f, -1.675f, -1.47f) * Lander.Metre), m), 5f)),
+                    new BoundSphere(new BoundingSphere(Position + Vector3.Transform((new Vector3(-1.47f, -1.675f, 1.47f) * Lander.Metre), m), 5f)),
+                    new BoundSphere(new BoundingSphere(Position + Vector3.Transform((new Vector3(1.47f, -1.675f, -1.47f) * Lander.Metre), m), 5f))
+                };
+        }
     }
 }

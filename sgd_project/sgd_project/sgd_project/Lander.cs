@@ -40,7 +40,7 @@ namespace sgd_project
         private SoundEffect _menuSelect;
         private MenuScreen _pause;
         private bool _running;
-        private bool _debug;
+        private bool _debug = true;
         private MenuScreen _gameOver;
         private Menu _menu;
         private Body _currentGravity;
@@ -55,6 +55,8 @@ namespace sgd_project
 
         private Viewport _mainView;
         private Viewport _bottomView;
+        private Effect _positionColorEffect;
+        private EffectParameter _positionColorEffectWvp;
 
         public Lander()
         {
@@ -87,6 +89,9 @@ namespace sgd_project
             GraphicsDevice.RasterizerState = RasterizerState.CullNone;
 
             _textureEffect = Content.Load<Effect>("Shaders\\Texture");
+            _positionColorEffect = Content.Load<Effect>("Shaders\\PositionColor");
+            _positionColorEffectWvp = _positionColorEffect.Parameters["wvpMatrix"];
+            BoundingSphereRenderer.Init(_positionColorEffectWvp, _positionColorEffect);
             _textureEffectWvp = _textureEffect.Parameters["wvpMatrix"];
             _textureEffectImage = _textureEffect.Parameters["textureImage"];
 
@@ -110,7 +115,7 @@ namespace sgd_project
             pos.Y = 0.0f;
             pos.Z = border;
             _groundVertices[1] = new VertexPositionColorTexture(pos, color, uv);
-
+            
             // top right
             uv.X = 10.0f;
             uv.Y = 0.0f;
@@ -297,7 +302,6 @@ namespace sgd_project
         /// </summary>
         protected override void LoadContent()
         {
-
             _mainView = GraphicsDevice.Viewport;
 
             _bottomView = _mainView;
@@ -375,7 +379,7 @@ namespace sgd_project
         {
             foreach(var pad in _pads)
             {
-                pad.Draw(look, projection);
+               pad.Draw(look, projection);
             }
 
             DrawGround(look, projection);
@@ -384,7 +388,20 @@ namespace sgd_project
 
         private void DrawDebug(Matrix look, Matrix projection)
         {
-            
+            if(_debug)
+            {
+                foreach(var b in _lem.GetBounds())
+                {
+                    b.Draw(GraphicsDevice, look, projection);
+                }
+                foreach(var b in _pads)
+                {
+                    foreach(var a in b.GetBounds())
+                    {
+                        //a.Draw(GraphicsDevice, look, projection);
+                    }
+                }
+            }
         }
 
         private void DrawHud()
@@ -445,7 +462,7 @@ namespace sgd_project
             GraphicsDevice.Viewport = _mainView;
             GraphicsDevice.Clear(Color.CornflowerBlue);
             // Copy any parent transforms.
-            Matrix m = 
+            var m = 
                 Matrix.CreateFromAxisAngle(Vector3.UnitX, CameraHorizontalAngle) *
                 Matrix.CreateFromAxisAngle(Vector3.UnitY, CameraVerticalAngle);
             var camera = Vector3.Transform(_cameraPosition, m);
@@ -457,6 +474,7 @@ namespace sgd_project
 
             DrawLem(look, projection);
             DrawScene(look, projection);
+            DrawDebug(look, projection);
             DrawHud();
 
             GraphicsDevice.Viewport = _bottomView;
@@ -504,7 +522,7 @@ namespace sgd_project
         public void NewGame()
         {
             _lem = new Lem();
-            _lem.Init(new Vector3(0, Lem.MinY, 0), _lemModel, _flame, _currentGravity, 100);
+            _lem.Init(new Vector3(0, Lem.MinY + 100, 0), _lemModel, _flame, _currentGravity, 100);
             _running = true;
         }
     }

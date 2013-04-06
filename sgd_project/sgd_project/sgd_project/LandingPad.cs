@@ -42,5 +42,10 @@ namespace sgd_project
                 mesh.Draw();
             }
         }
+
+        public IBound[] GetBounds()
+        {
+            return new IBound[] { new BoundBox(new BoundingBox(Position - (new Vector3(-7.5f, 15, -7.5f) * Lander.Metre), Position - (new Vector3(7.5f, 0, 7.5f) * Lander.Metre)))  };
+        }
     }
 }
