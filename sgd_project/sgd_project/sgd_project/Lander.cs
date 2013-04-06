@@ -330,7 +330,10 @@ namespace sgd_project
             _lem.Init(new Vector3(0, 500, 0), _lemModel, _flame, _currentGravity, 100);
 
             var pad = new LandingPad();
-            pad.Init(new Vector3(0,3,0) * Metre, _landingPad);
+            pad.Init(new Vector3(0, 3, 0) * Metre, _landingPad);
+            _pads.Add(pad);
+            pad = new LandingPad();
+            pad.Init(new Vector3(15, 3, 30) * Metre, _landingPad);
             _pads.Add(pad);
         }
 
