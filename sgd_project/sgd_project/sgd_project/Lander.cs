@@ -122,7 +122,6 @@ namespace sgd_project
 
 
             _menu = new Menu();
-            InitMenu();
 
             //Using the sprite batch messes up these settings
             _rs = GraphicsDevice.RasterizerState;
@@ -327,6 +326,8 @@ namespace sgd_project
             _currentGravity = _gravity["moon"];
 
 
+            InitMenu();
+
             _lem.Init(new Vector3(0, 500, 0), _lemModel, _flame, _currentGravity, 100);
 
             var pad = new LandingPad();
@@ -495,7 +496,7 @@ namespace sgd_project
 
             look = Matrix.CreateLookAt(_lem.Position, new Vector3(_lem.Position.X, .5f, _lem.Position.Z + .1f), Vector3.Down);
             projection = Matrix.CreatePerspectiveFieldOfView(
-                MathHelper.ToRadians(45.0f), GraphicsDevice.Viewport.AspectRatio,
+                MathHelper.ToRadians(30.0f), GraphicsDevice.Viewport.AspectRatio,
                 1.0f, 10000.0f);
 
             DrawScene(look, projection);
