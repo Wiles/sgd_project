@@ -30,7 +30,7 @@ namespace sgd_project
             {
                 val = gamePad.Triggers.Right;
             }
-            return inverted ? -val : val;
+            return val;
         }
 
         public float RotationZ()

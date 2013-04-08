@@ -21,7 +21,7 @@ namespace sgd_project
 
         private Lem _lem = new Lem();
 
-        private const float Boundary = 160000.0f;
+        private const float Boundary = 1000.0f;
 
         private Model _lemModel;
         private Model _flame;

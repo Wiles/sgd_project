@@ -48,7 +48,7 @@ namespace sgd_project
             {
                 thrust = new Vector3(0, input.Thrust() * timePercent * MaxThrust, 0);
                 _thrust = input.Thrust();
-                Fuel -= input.Thrust() * timePercent;
+                Fuel -= Math.Abs(input.Thrust() * timePercent);
 
                 thrust = Vector3.Transform(thrust, Matrix.CreateFromAxisAngle(Vector3.UnitX, RotationX));
                 thrust = Vector3.Transform(thrust, Matrix.CreateFromAxisAngle(Vector3.UnitZ, RotationZ));   
