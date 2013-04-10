@@ -53,6 +53,7 @@ namespace sgd_project
         private BlendState _bs;
         private SamplerState _ss;
 
+        private HeadsUpDisplay _hud;
         private Viewport _mainView;
         private Viewport _bottomView;
         private Effect _positionColorEffect;
@@ -306,6 +307,9 @@ namespace sgd_project
             _landingPad = Content.Load<Model>("models\\landingPad\\landingPad");
             _menu.Initialize(GraphicsDevice.Viewport, _scoreFont, _menuMove, _menuSelect, _menuBack);
 
+
+            _hud = new HeadsUpDisplay(_scoreFont);
+
             
             var ground = new Ground();
             ground.Init(_textureEffect, _textureEffectWvp, _textureEffectImage, _grassTexture, _groundVertices);
@@ -424,32 +428,7 @@ namespace sgd_project
             if (_running)
             {
                 _spriteBatch.Begin();
-                float height = _scoreFont.MeasureString("_").Y;
-                _spriteBatch.DrawString(_scoreFont,
-                                       string.Format(@"X Rot.: {0:0.00}", MathHelper.ToDegrees(_lem.RotationX)),
-                                       new Vector2((GraphicsDevice.Viewport.Width / 2) + 2, height + 2),
-                                       Color.White, 0.0f,
-                                       Vector2.Zero,
-                                       1.0f, SpriteEffects.None, 0.0f);
-                _spriteBatch.DrawString(_scoreFont,
-                                       string.Format(@"Y Rot.: {0:0.00}", MathHelper.ToDegrees(_lem.RotationZ)),
-                                       new Vector2((GraphicsDevice.Viewport.Width / 2) + 2, height * 2 + 2),
-                                       Color.White, 0.0f,
-                                       Vector2.Zero,
-                                       1.0f, SpriteEffects.None, 0.0f);
-                _spriteBatch.DrawString(_scoreFont,
-                                       string.Format(@"  Fuel: {0:0.00}", _lem.Fuel),
-                                       new Vector2((GraphicsDevice.Viewport.Width / 2) + 2, height * 3 + 2),
-                                       Color.White, 0.0f,
-                                       Vector2.Zero,
-                                       1.0f, SpriteEffects.None, 0.0f);
-                _spriteBatch.DrawString(_scoreFont,
-                                       string.Format(@"  Height: {0:0.00}", (_lem.Position.Y - Lem.MinY) / Metre.Y),
-                                       new Vector2((GraphicsDevice.Viewport.Width / 2) + 2, height * 4 + 2),
-                                       Color.White, 0.0f,
-                                       Vector2.Zero,
-                                       1.0f, SpriteEffects.None, 0.0f);
-
+                _hud.Draw(_spriteBatch, GraphicsDevice.Viewport, _lem);
                 _spriteBatch.End();
 
             }

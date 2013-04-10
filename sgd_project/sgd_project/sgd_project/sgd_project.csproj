@@ -110,6 +110,7 @@
     <Compile Include="Body.cs" />
     <Compile Include="BoundingSphereRenderer.cs" />
     <Compile Include="Ground.cs" />
+    <Compile Include="HeadsUpDisplay.cs" />
     <Compile Include="IBound.cs" />
     <Compile Include="BoundBox.cs" />
     <Compile Include="BoundingBoxRenderer.cs" />
