@@ -497,9 +497,10 @@ namespace sgd_project
             _running = true;
         }
 
-        public void GameOver()
+        public void GameOver( string reason )
         {
             _running = false;
+            _gameOver.Title = string.Format(@"Game Over - {0}", reason);
             _menu.MainMenuIndex = _menu.Screens.IndexOf(_gameOver);
             _menu.SelectedMenuScreen = _menu.MainMenuIndex;
         }
@@ -512,8 +513,7 @@ namespace sgd_project
                 {
                     if (bound.Intersects(b))
                     {
-                        //touched the ground.
-                        GameOver();
+                        GameOver("Lander touched the ground");
                         break;
                     }
                 }
@@ -551,8 +551,7 @@ namespace sgd_project
                             }
                             if (_lem.Velocity.Length() > 10)
                             {
-                                //Hit ground too hard
-                                GameOver();
+                                GameOver("Landed too fast");
                             }
                             _lem.Velocity = Vector3.Zero;
                             break;
@@ -566,16 +565,14 @@ namespace sgd_project
 
                         if (Math.Abs(_lem.RotationX) == 0.00 && Math.Abs(_lem.RotationZ) == 0.0)
                         {
-                            //Not fully on pad
-                            GameOver();
+                            GameOver(string.Format(@"Only {0} feet on landing pad", collisions));
                             break;
                         }
 
                         if (Math.Abs(_lem.RotationX) > MathHelper.ToRadians(5) ||
                             Math.Abs(_lem.RotationZ) > MathHelper.ToRadians(5) && _lem.Velocity.Y < 0)
                         {
-                            //landed to steeply
-                            GameOver();
+                            GameOver("Landing angle too steep");
                             break;
                         }
 
