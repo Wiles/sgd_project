@@ -23,7 +23,7 @@ namespace sgd_project
         /// <summary>
         /// The cardinal directions
         /// </summary>
-        private static string[] Directions = new string[]
+        private static string[] Directions = new[]
         {
             "N",
             "NNE",
@@ -46,7 +46,7 @@ namespace sgd_project
         /// <summary>
         /// 
         /// </summary>
-        private Texture2D _texture;
+        private readonly Texture2D _texture;
 
         private readonly SpriteFont _font;
 
@@ -94,7 +94,7 @@ namespace sgd_project
         /// <param name="view">The view.</param>
         /// <param name="lem">The lem.</param>
         /// <param name="wind">The wind vector.</param>
-        public void Draw(SpriteBatch spriteBatch, Viewport view, Lem lem, Vector3 wind)
+        public void Draw(SpriteBatch spriteBatch, Viewport view, Lem lem, Vector3 wind, int score)
         {
             spriteBatch.Draw(_texture, Vector2.Zero, Color.White);
 
@@ -130,6 +130,12 @@ namespace sgd_project
             spriteBatch.DrawString(_font,
                                    string.Format(@"  Fuel: {0:0.00}", lem.Fuel),
                                    new Vector2(370, 7),
+                                   Color.Black, 0.0f,
+                                   Vector2.Zero,
+                                   1.0f, SpriteEffects.None, 0.0f);
+            spriteBatch.DrawString(_font,
+                                   string.Format(@" Score: {0:0.00}", score),
+                                   new Vector2(370, height + 7),
                                    Color.Black, 0.0f,
                                    Vector2.Zero,
                                    1.0f, SpriteEffects.None, 0.0f);

@@ -23,6 +23,7 @@ namespace sgd_project
 
         private LandingPad _currentObjective;
         private bool _storeAvailable;
+        private int _score;
 
         private readonly VertexPositionColorTexture[] _groundVertices = new VertexPositionColorTexture[4];
         private readonly List<LandingPad> _pads = new List<LandingPad>();
@@ -433,7 +434,7 @@ namespace sgd_project
                 {
                     foreach (IBound bound in pad.GetBounds())
                     {
-                        //bound.Draw(GraphicsDevice, look, projection);
+                        bound.Draw(GraphicsDevice, look, projection);
                     }
                 }
             }
@@ -448,7 +449,7 @@ namespace sgd_project
                         _spriteBatch,
                         GraphicsDevice.Viewport,
                         _lem,
-                        _currentGravity.Wind);
+                        _currentGravity.Wind, _score);
                 _spriteBatch.End();
             }
             else
@@ -516,6 +517,7 @@ namespace sgd_project
         public void GameOver( string reason )
         {
             _running = false;
+            _score = 0;
             _gameOver.Title = string.Format(@"Game Over - {0}", reason);
             _menu.MainMenuIndex = _menu.Screens.IndexOf(_gameOver);
             _menu.SelectedMenuScreen = _menu.MainMenuIndex;
@@ -558,6 +560,9 @@ namespace sgd_project
                                 pad.Model = _landingPad;
                                 _currentObjective = _pads[(_pads.IndexOf(pad) + 1) % _pads.Count];
                                 _currentObjective.Model = _landingPadGreen;
+                                var diff = pad.Position - _lem.Position;
+                                diff.Y = 0;
+                                _score += 100 - (int)(((diff.Length())/ (7.5 * Metre.Y)) * 100f);
                             }
 
                             if (_lem.Velocity.Y < 0)
