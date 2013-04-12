@@ -295,6 +295,8 @@ namespace sgd_project
             _bottomView = _mainView;
             _bottomView.Height = _mainView.Height / 3;
             _bottomView.Width = _bottomView.Height;
+            _bottomView.X = 2;
+            _bottomView.Y = 2;
 
             _spriteBatch = new SpriteBatch(GraphicsDevice);
             _grassTexture = Content.Load<Texture2D>("Images\\grass");
@@ -307,10 +309,9 @@ namespace sgd_project
             _landingPad = Content.Load<Model>("models\\landingPad\\landingPad");
             _menu.Initialize(GraphicsDevice.Viewport, _scoreFont, _menuMove, _menuSelect, _menuBack);
 
-
-            _hud = new HeadsUpDisplay(_scoreFont);
-
-            
+            var hudTexture = Content.Load<Texture2D>("Images\\hud");
+            _hud = new HeadsUpDisplay(_scoreFont, hudTexture);
+                        
             var ground = new Ground();
             ground.Init(_textureEffect, _textureEffectWvp, _textureEffectImage, _grassTexture, _groundVertices);
 
@@ -352,6 +353,7 @@ namespace sgd_project
             _menuMove.Dispose();
             _menuSelect.Dispose();
             _menuBack.Dispose();
+            _hud.Dispose();
         }
 
         /// <summary>
@@ -428,9 +430,12 @@ namespace sgd_project
             if (_running)
             {
                 _spriteBatch.Begin();
-                _hud.Draw(_spriteBatch, GraphicsDevice.Viewport, _lem);
+                _hud.Draw(
+                        _spriteBatch,
+                        GraphicsDevice.Viewport,
+                        _lem,
+                        _currentGravity.Wind);
                 _spriteBatch.End();
-
             }
             else
             {
