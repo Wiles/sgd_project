@@ -7,6 +7,7 @@
 //Desc:     
 //          Verticies used to draw a sphere
 //
+
 using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -16,8 +17,9 @@ namespace sgd_project
     /// <summary>
     /// Verticies used to draw a sphere
     /// </summary>
-    public class SphereVertices{
-        private readonly Color   _color;
+    public class SphereVertices
+    {
+        private readonly Color _color;
         private Vector3 _offset = Vector3.Zero;
 
         /// <summary>
@@ -27,8 +29,8 @@ namespace sgd_project
         /// <param name="position">The position.</param>
         public SphereVertices(Color vertexColor, Vector3 position)
         {
-            _offset          = position;
-            _color           = vertexColor;
+            _offset = position;
+            _color = vertexColor;
         }
 
         /// <summary>
@@ -41,42 +43,42 @@ namespace sgd_project
         public VertexPositionColor[] InitializeSphere(int numSlices,
                                                       int numStacks, float radius)
         {
-            var position  = new Vector3[(numSlices + 1)
-                                *             (numStacks + 1)];
-            var rowHeight     = MathHelper.Pi/numStacks;
-            var colWidth      = MathHelper.TwoPi / numSlices;
+            var position = new Vector3[(numSlices + 1)
+                                       *(numStacks + 1)];
+            float rowHeight = MathHelper.Pi/numStacks;
+            float colWidth = MathHelper.TwoPi/numSlices;
 
             // generate horizontal rows (stacks in sphere)
-            for (var stacks = 0; stacks <= numStacks; stacks++)
+            for (int stacks = 0; stacks <= numStacks; stacks++)
             {
-                var angleX = MathHelper.PiOver2 - stacks * rowHeight;
-                var y = radius * (float)Math.Sin(angleX);
-                var w = -radius * (float)Math.Cos(angleX);
+                float angleX = MathHelper.PiOver2 - stacks*rowHeight;
+                float y = radius*(float) Math.Sin(angleX);
+                float w = -radius*(float) Math.Cos(angleX);
 
                 // generate vertical columns (slices in sphere)
-                for (var slices = 0; slices <= numSlices; slices++)
+                for (int slices = 0; slices <= numSlices; slices++)
                 {
-                    var angleY = slices * colWidth;
-                    var x = w * (float)Math.Sin(angleY);
-                    var z = w * (float)Math.Cos(angleY);
+                    float angleY = slices*colWidth;
+                    float x = w*(float) Math.Sin(angleY);
+                    float z = w*(float) Math.Cos(angleY);
 
                     // position sphere vertices at offest from origin
-                    position[stacks * numSlices + slices] =
-                    new Vector3(x + _offset.X, y + _offset.Y, z + _offset.Z);
+                    position[stacks*numSlices + slices] =
+                        new Vector3(x + _offset.X, y + _offset.Y, z + _offset.Z);
                 }
             }
-            var i = -1;
-            var vertices = new VertexPositionColor[2 * numSlices * numStacks];
-            
+            int i = -1;
+            var vertices = new VertexPositionColor[2*numSlices*numStacks];
+
             // index vertices to draw sphere
-            for (var stacks = 0; stacks < numStacks; stacks++)
+            for (int stacks = 0; stacks < numStacks; stacks++)
             {
-                for (var slices = 0; slices < numSlices; slices++)
+                for (int slices = 0; slices < numSlices; slices++)
                 {
                     vertices[++i] = new VertexPositionColor(
-                                        position[stacks * numSlices + slices], _color);
+                        position[stacks*numSlices + slices], _color);
                     vertices[++i] = new VertexPositionColor(
-                                        position[(stacks + 1) * numSlices + slices], _color);
+                        position[(stacks + 1)*numSlices + slices], _color);
                 }
             }
             return vertices;

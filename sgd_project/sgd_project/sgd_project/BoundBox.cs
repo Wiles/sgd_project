@@ -7,17 +7,35 @@
 //Desc:     
 //          Wrapper for the BoundingBox object
 //
+
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
 namespace sgd_project
 {
-
     /// <summary>
     /// Wrapper for the BoundingBox object
     /// </summary>
     public class BoundBox : IBound
     {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="BoundBox"/> class.
+        /// </summary>
+        /// <param name="box">The box.</param>
+        public BoundBox(BoundingBox box)
+        {
+            Box = box;
+            Vector3[] corners = box.GetCorners();
+            Vertices = new VertexPositionColor[corners.Length];
+
+
+            // Assign the 8 box vertices
+            for (int i = 0; i < corners.Length; i++)
+            {
+                Vertices[i] = new VertexPositionColor(corners[i], Color.Green);
+            }
+        }
+
         /// <summary>
         /// Gets the box.
         /// </summary>
@@ -25,6 +43,7 @@ namespace sgd_project
         /// The box.
         /// </value>
         public BoundingBox Box { get; private set; }
+
         /// <summary>
         /// Gets the vertices.
         /// </summary>
@@ -33,23 +52,7 @@ namespace sgd_project
         /// </value>
         public VertexPositionColor[] Vertices { get; private set; }
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="BoundBox"/> class.
-        /// </summary>
-        /// <param name="box">The box.</param>
-        public BoundBox(BoundingBox box)
-        {
-            Box = box;
-            var corners = box.GetCorners();
-            Vertices = new VertexPositionColor[corners.Length];
-
-
-            // Assign the 8 box vertices
-            for (var i = 0; i < corners.Length; i++)
-            {
-                Vertices[i] = new VertexPositionColor(corners[i], Color.Green);
-            }
-        }
+        #region IBound Members
 
         /// <summary>
         /// Checks if the two bounds intersect eachother
@@ -60,11 +63,11 @@ namespace sgd_project
         /// </returns>
         public bool Intersects(IBound that)
         {
-            if(that is BoundBox)
+            if (that is BoundBox)
             {
                 return Box.Intersects((that as BoundBox).Box);
             }
-            if(that is BoundSphere)
+            if (that is BoundSphere)
             {
                 return Box.Intersects((that as BoundSphere).Sphere);
             }
@@ -100,6 +103,7 @@ namespace sgd_project
         {
             return Box.Max;
         }
-    }
 
+        #endregion
+    }
 }

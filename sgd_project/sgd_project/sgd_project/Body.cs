@@ -7,6 +7,7 @@
 //Desc:     
 //  Represents an astronomical body
 //
+
 using Microsoft.Xna.Framework;
 
 namespace sgd_project
@@ -14,30 +15,8 @@ namespace sgd_project
     /// <summary>
     /// Represents an astronomical body
     /// </summary>
-    class Body
+    internal class Body
     {
-        /// <summary>
-        /// Gets the gravity.
-        /// </summary>
-        /// <value>
-        /// The gravity.
-        /// </value>
-        public Vector3 Gravity { get; private set; }
-        /// <summary>
-        /// Gets the wind.
-        /// </summary>
-        /// <value>
-        /// The wind.
-        /// </value>
-        public Vector3 Wind { get; private set; }
-        /// <summary>
-        /// Gets the ground.
-        /// </summary>
-        /// <value>
-        /// The ground.
-        /// </value>
-        public Ground Ground { get; private set; }
-
         /// <summary>
         /// Initializes a new instance of the <see cref="Body"/> class.
         /// </summary>
@@ -50,5 +29,29 @@ namespace sgd_project
             Wind = wind;
             Ground = ground;
         }
+
+        /// <summary>
+        /// Gets the gravity.
+        /// </summary>
+        /// <value>
+        /// The gravity.
+        /// </value>
+        public Vector3 Gravity { get; private set; }
+
+        /// <summary>
+        /// Gets the wind.
+        /// </summary>
+        /// <value>
+        /// The wind.
+        /// </value>
+        public Vector3 Wind { get; private set; }
+
+        /// <summary>
+        /// Gets the ground.
+        /// </summary>
+        /// <value>
+        /// The ground.
+        /// </value>
+        public Ground Ground { get; private set; }
     }
 }

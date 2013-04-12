@@ -7,6 +7,7 @@
 //Desc:     
 //          Wrapper for the BoundingSphere
 //
+
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
@@ -21,12 +22,25 @@ namespace sgd_project
         private const int Stacks = 10;
 
         /// <summary>
+        /// Initializes a new instance of the <see cref="BoundSphere"/> class.
+        /// </summary>
+        /// <param name="sphere">The sphere.</param>
+        public BoundSphere(BoundingSphere sphere)
+        {
+            Sphere = sphere;
+            PrimativeCount = Slices*Stacks*2 - 1;
+            var sphereVertices = new SphereVertices(Color.Red, Sphere.Center);
+            Vertices = sphereVertices.InitializeSphere(Slices, Stacks, Sphere.Radius);
+        }
+
+        /// <summary>
         /// Gets the sphere.
         /// </summary>
         /// <value>
         /// The sphere.
         /// </value>
         public BoundingSphere Sphere { get; private set; }
+
         /// <summary>
         /// Gets the vertices.
         /// </summary>
@@ -34,6 +48,7 @@ namespace sgd_project
         /// The vertices.
         /// </value>
         public VertexPositionColor[] Vertices { get; private set; }
+
         /// <summary>
         /// Gets the number of primatives which make up the sphere.
         /// </summary>
@@ -42,17 +57,7 @@ namespace sgd_project
         /// </value>
         public int PrimativeCount { get; private set; }
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="BoundSphere"/> class.
-        /// </summary>
-        /// <param name="sphere">The sphere.</param>
-        public BoundSphere(BoundingSphere sphere)
-        {
-            Sphere = sphere;
-            PrimativeCount = Slices * Stacks * 2 - 1;
-            var sphereVertices = new SphereVertices(Color.Red, Sphere.Center);
-            Vertices = sphereVertices.InitializeSphere(Slices, Stacks, Sphere.Radius);
-        }
+        #region IBound Members
 
         /// <summary>
         /// Checks if the two bounds intersect eachother
@@ -63,11 +68,11 @@ namespace sgd_project
         /// </returns>
         public bool Intersects(IBound that)
         {
-            if(that is BoundSphere)
+            if (that is BoundSphere)
             {
                 return Sphere.Intersects((that as BoundSphere).Sphere);
             }
-            if(that is BoundBox)
+            if (that is BoundBox)
             {
                 return Sphere.Intersects((that as BoundBox).Box);
             }
@@ -102,5 +107,7 @@ namespace sgd_project
         {
             return BoundingBox.CreateFromSphere(Sphere).Max;
         }
+
+        #endregion
     }
 }

@@ -7,6 +7,7 @@
 //Desc:     
 //          Landing pad Entity
 //
+
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
@@ -15,9 +16,10 @@ namespace sgd_project
     /// <summary>
     /// Landing pad Entity
     /// </summary>
-    class LandingPad : IEntity
+    internal class LandingPad : IEntity
     {
         private Model _model;
+
         /// <summary>
         /// Gets the position.
         /// </summary>
@@ -26,17 +28,7 @@ namespace sgd_project
         /// </value>
         public Vector3 Position { get; private set; }
 
-        /// <summary>
-        /// Inits the landing pad
-        /// </summary>
-        /// <param name="position">The position.</param>
-        /// <param name="model">The model.</param>
-        public void Init(Vector3 position, Model model)
-        {
-            _model = model;
-            Position = position;
-        }
-
+        #region IEntity Members
 
         /// <summary>
         /// Updates the entity.
@@ -45,7 +37,6 @@ namespace sgd_project
         /// <param name="input">The input.</param>
         public void Update(long delta, Input input)
         {
-            
         }
 
         /// <summary>
@@ -59,7 +50,7 @@ namespace sgd_project
             var transforms = new Matrix[_model.Bones.Count];
             _model.CopyAbsoluteBoneTransformsTo(transforms);
 
-            foreach (var mesh in _model.Meshes)
+            foreach (ModelMesh mesh in _model.Meshes)
             {
                 // This is where the mesh orientation is set, as well 
                 // as our camera and projection.
@@ -67,7 +58,7 @@ namespace sgd_project
                 {
                     effect.EnableDefaultLighting();
                     effect.World =
-                        transforms[mesh.ParentBone.Index] *
+                        transforms[mesh.ParentBone.Index]*
                         Matrix.CreateTranslation(Position);
                     effect.View = camera;
                     effect.Projection = projection;
@@ -83,7 +74,24 @@ namespace sgd_project
         /// <returns></returns>
         public IBound[] GetBounds()
         {
-            return new IBound[] { new BoundBox(new BoundingBox(Position - (new Vector3(7.5f, 15, 7.5f) * Lander.Metre), Position - (new Vector3(-7.5f, 0, -7.5f) * Lander.Metre)))  };
+            return new IBound[]
+                {
+                    new BoundBox(new BoundingBox(Position - (new Vector3(7.5f, 15, 7.5f)*Lander.Metre),
+                                                 Position - (new Vector3(-7.5f, 0, -7.5f)*Lander.Metre)))
+                };
+        }
+
+        #endregion
+
+        /// <summary>
+        /// Inits the landing pad
+        /// </summary>
+        /// <param name="position">The position.</param>
+        /// <param name="model">The model.</param>
+        public void Init(Vector3 position, Model model)
+        {
+            _model = model;
+            Position = position;
         }
     }
 }

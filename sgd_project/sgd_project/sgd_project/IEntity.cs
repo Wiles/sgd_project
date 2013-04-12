@@ -7,6 +7,7 @@
 //Desc:     
 //          Interface for a drawable Entity          
 //
+
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
@@ -15,7 +16,7 @@ namespace sgd_project
     /// <summary>
     /// Interface for a drawable Entity
     /// </summary>
-    interface IEntity
+    internal interface IEntity
     {
         /// <summary>
         /// Gets the collision bounds.

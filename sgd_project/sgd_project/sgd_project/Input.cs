@@ -7,6 +7,7 @@
 //Desc:     
 //          Wrapper for user input handles both Keyboard and Game pad
 //
+
 using Microsoft.Xna.Framework.Input;
 
 namespace sgd_project
@@ -16,9 +17,9 @@ namespace sgd_project
     /// </summary>
     public class Input
     {
+        private readonly bool _inverted;
         private GamePadState _gamePad;
         private KeyboardState _keyboard;
-        private readonly bool _inverted;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Input"/> class.
@@ -78,7 +79,7 @@ namespace sgd_project
                 return -1.0f;
             }
 
-            return _inverted ? -_gamePad.ThumbSticks.Left.Y: _gamePad.ThumbSticks.Left.Y;
+            return _inverted ? -_gamePad.ThumbSticks.Left.Y : _gamePad.ThumbSticks.Left.Y;
         }
 
         /// <summary>
@@ -95,7 +96,7 @@ namespace sgd_project
             {
                 return -.5f;
             }
-            if(_keyboard.IsKeyDown(Keys.Up))
+            if (_keyboard.IsKeyDown(Keys.Up))
             {
                 return 1f;
             }

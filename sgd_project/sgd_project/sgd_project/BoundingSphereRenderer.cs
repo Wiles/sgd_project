@@ -7,6 +7,7 @@
 //Desc:     
 //          Renders a BoundSphere to the display
 //
+
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
@@ -15,7 +16,7 @@ namespace sgd_project
     /// <summary>
     /// Renders a BoundSphere to the display
     /// </summary>
-    class BoundingSphereRenderer
+    internal class BoundingSphereRenderer
     {
         private static EffectParameter _positionColorEffectWvp;
         private static Effect _positionColorEffect;
@@ -40,11 +41,11 @@ namespace sgd_project
         /// <param name="projection">The projection.</param>
         public static void Render(GraphicsDevice graphics, BoundSphere sphere, Matrix view, Matrix projection)
         {
-            var world = Matrix.Identity;
+            Matrix world = Matrix.Identity;
 
             // 4: set variables in shader
             _positionColorEffectWvp.SetValue(world
-                                            * view * projection);
+                                             *view*projection);
 
             // 5: draw object - primitive type, vertex data, # primitives
             PositionColorShader(
@@ -52,19 +53,18 @@ namespace sgd_project
                 PrimitiveType.LineStrip,
                 sphere.Vertices,
                 sphere.PrimativeCount);
-
         }
 
-        private static void PositionColorShader(GraphicsDevice graphics, 
-                                        PrimitiveType primitiveType,
-                                         VertexPositionColor[] vertexData,
-                                         int numPrimitives)
+        private static void PositionColorShader(GraphicsDevice graphics,
+                                                PrimitiveType primitiveType,
+                                                VertexPositionColor[] vertexData,
+                                                int numPrimitives)
         {
             _positionColorEffect.Techniques[0].Passes[0].Apply();
 
             // set drawing format and vertex data then draw primitive surface
             graphics.DrawUserPrimitives(
-                                    primitiveType, vertexData, 0, numPrimitives);
+                primitiveType, vertexData, 0, numPrimitives);
         }
     }
 }
