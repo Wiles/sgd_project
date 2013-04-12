@@ -31,8 +31,8 @@ namespace sgd_project
         private bool _invertedControls;
 
         private readonly Vector3 _cameraPosition = new Vector3(0.0f, 0.0f, 250.0f);
-        private const float CameraHorizontalAngle = -MathHelper.PiOver4;
-        private const float CameraVerticalAngle = 0;
+        private float _cameraHorizontalAngle = 0;
+        private const float CameraVerticalAngle = -MathHelper.PiOver4;
         private Effect _textureEffect;
         private EffectParameter _textureEffectWvp;
         private EffectParameter _textureEffectImage;
@@ -376,10 +376,7 @@ namespace sgd_project
 
             if (_running)
             {
-              //  _cameraHorizontalAngle += delta/1000.0f*gpState.ThumbSticks.Right.Y*CameraRps;
-               // _cameraHorizontalAngle = MathHelper.Clamp(_cameraHorizontalAngle, -MathHelper.PiOver2*.95f,
-               //                                           MathHelper.PiOver2*.95f);
-              //  _cameraVerticalAngle -= delta/1000.0f*gpState.ThumbSticks.Right.X*CameraRps;
+                _cameraHorizontalAngle = input.CameraRotationY() * MathHelper.Pi;
 
                 _lem.Update(delta, input);
             }
@@ -460,8 +457,8 @@ namespace sgd_project
             GraphicsDevice.Clear(Color.CornflowerBlue);
             // Copy any parent transforms.
             var m = 
-                Matrix.CreateFromAxisAngle(Vector3.UnitX, CameraHorizontalAngle) *
-                Matrix.CreateFromAxisAngle(Vector3.UnitY, CameraVerticalAngle);
+                Matrix.CreateFromAxisAngle(Vector3.UnitX, CameraVerticalAngle) *
+                Matrix.CreateFromAxisAngle(Vector3.UnitY, _cameraHorizontalAngle);
             var camera = Vector3.Transform(_cameraPosition, m);
             // Draw the model. A model can have multiple meshes, so loop.
             var look = Matrix.CreateLookAt(_lem.Position + camera, _lem.Position, Vector3.Up);

@@ -14,7 +14,7 @@ namespace sgd_project
 
         public Input(GamePadState pg, KeyboardState kb, bool inverted)
         {
-            this.gamePad = pg;
+            gamePad = pg;
             this.kb = kb;
             this.inverted = inverted;
         }
@@ -24,13 +24,9 @@ namespace sgd_project
             var val = 0f;
             if (kb.IsKeyDown(Keys.Space))
             {
-                val = 1.0f;
+                return 1.0f;
             }
-            else
-            {
-                val = gamePad.Triggers.Right;
-            }
-            return val;
+            return gamePad.Triggers.Right;
         }
 
         public float RotationZ()
@@ -67,6 +63,23 @@ namespace sgd_project
                 val = gamePad.ThumbSticks.Left.Y;
             }
             return inverted ? -val : val;
+        }
+
+        public float CameraRotationY()
+        {
+            if (kb.IsKeyDown(Keys.Left))
+            {
+                return .5f;
+            }
+            if (kb.IsKeyDown(Keys.Right))
+            {
+                return -.5f;
+            }
+            if(kb.IsKeyDown(Keys.Up))
+            {
+                return 1f;
+            }
+            return inverted ? -gamePad.ThumbSticks.Right.X : gamePad.ThumbSticks.Right.X;
         }
 
         public bool Escape()
