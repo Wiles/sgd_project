@@ -91,7 +91,6 @@ namespace sgd_project
         public float Fuel { get; private set; }
 
         private SoundEffectInstance _engine;
-        private SoundEffectInstance[] _thrusterSound = new SoundEffectInstance[4];
         private AudioListener _listener;
 
         /// <summary>
@@ -118,11 +117,6 @@ namespace sgd_project
             _engine.Apply3D(listener, new AudioEmitter());
             _engine.Play();
             _listener = listener;
-            foreach (var i in Enumerable.Range(0,4))
-            {
-                _thrusterSound[i] = engine.CreateInstance();
-                //_thrusterSound[i].Play();
-            }
         }
 
         /// <summary>
@@ -147,10 +141,6 @@ namespace sgd_project
             Vector3 thrust = Vector3.Zero;
             if (Fuel > 0)
             {
-                if (input.Thrust() > 0)
-                {
-                    _engine.Volume = (float) (.5 + (input.Thrust()*.5));
-                }
                 thrust = new Vector3(0, input.Thrust()*timePercent*MaxThrust, 0);
                 _thrust = input.Thrust();
                 Fuel -= Math.Abs(input.Thrust()*timePercent);
@@ -225,14 +215,20 @@ namespace sgd_project
                 Matrix.CreateFromAxisAngle(Vector3.UnitZ, RotationZ) *
                 Matrix.CreateFromAxisAngle(Vector3.UnitX, RotationX);
             Vector3 pos = Position + Vector3.Transform(new Vector3(0, -1.5f, 0) * Lander.Metre, m);
+
+
             var emitter = new AudioEmitter();
             emitter.Position = pos;
             _engine.Apply3D(_listener, emitter);
+            if (_thrust > 0)
+            {
+                _engine.Volume = (float)(.5 + (_thrust * .5));
+            }
 
 
             foreach (ModelMesh mesh in _flame.Meshes)
             {
-                pos = Vector3.Transform(new Vector3(0, -1.5f, 0)*Lander.Metre, m);
+                pos = Position + Vector3.Transform(new Vector3(0, -1.5f, 0) * Lander.Metre, m);
 
                 // This is where the mesh orientation is set, as well 
                 // as our camera and projection.
@@ -244,7 +240,7 @@ namespace sgd_project
                         transforms[mesh.ParentBone.Index]*
                         Matrix.CreateRotationZ(RotationZ)*
                         Matrix.CreateRotationX(RotationX)*
-                        Matrix.CreateTranslation(Position + pos)
+                        Matrix.CreateTranslation( pos)
                         ;
                     effect.View = camera;
                     effect.Projection = projection;
