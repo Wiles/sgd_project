@@ -21,11 +21,12 @@ namespace sgd_project
 
         private Lem _lem = new Lem();
 
-        private const float Boundary = 1000.0f;
+        private const float Boundary = 100000.0f;
 
         private Model _lemModel;
         private Model _flame;
         private Model _landingPad;
+        private Model _landingPadGreen;
 
         private bool _invertedControls;
 
@@ -305,6 +306,8 @@ namespace sgd_project
             _menuBack = Content.Load<SoundEffect>("Sounds\\menuBack");
             _flame   = Content.Load<Model>("models\\jet\\jet");
             _landingPad = Content.Load<Model>("models\\landingPad\\landingPad");
+            _landingPadGreen = Content.Load<Model>("models\\landingPad\\landingPadGreen");
+
             _menu.Initialize(GraphicsDevice.Viewport, _scoreFont, _menuMove, _menuSelect, _menuBack);
 
 
@@ -335,7 +338,7 @@ namespace sgd_project
             _lem.Init(new Vector3(0, 500, 0), _lemModel, _flame, _currentGravity, 100);
 
             var pad = new LandingPad();
-            pad.Init(new Vector3(0, 3, 0) * Metre, _landingPad);
+            pad.Init(new Vector3(0, 3, 0) * Metre, _landingPadGreen);
             _pads.Add(pad);
             pad = new LandingPad();
             pad.Init(new Vector3(15, 3, 30) * Metre, _landingPad);
