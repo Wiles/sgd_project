@@ -1,5 +1,12 @@
-using System;
-
+//File:     Program.cs
+//Name:     Samuel Lewis (5821103) & Thomas Kempton (5781000)
+//Date:     2013-04-15
+//Class:    Simulation and Game Development
+//Ass:      Project
+//
+//Desc:     
+//          Code entry point
+//
 namespace sgd_project
 {
 #if WINDOWS || XBOX
@@ -10,7 +17,7 @@ namespace sgd_project
         /// </summary>
         static void Main(string[] args)
         {
-            using (Lander game = new Lander())
+            using (var game = new Lander())
             {
                 game.Run();
             }

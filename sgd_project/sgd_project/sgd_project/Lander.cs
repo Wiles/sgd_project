@@ -265,7 +265,7 @@ namespace sgd_project
                 pair => string.Format(@"{0, 10} G: {1:0.##}mpsps W: {2:0.##}mps", pair.Key, -pair.Value.Gravity.Y, pair.Value.Wind.Length()), 
                 pair => (() =>
                     {
-                        _lem.Gravity = pair.Value;
+                        _lem.Body = pair.Value;
                         _currentGravity = pair.Value;
                         _menu.SelectedMenuScreen = _menu.MainMenuIndex;
                     }));
@@ -317,7 +317,7 @@ namespace sgd_project
             var ground = new Ground();
             ground.Init(_textureEffect, _textureEffectWvp, _textureEffectImage, _grassTexture, _groundVertices);
 
-            //Equitorial Surface Gravity as listed on Wikipedia
+            //Equitorial Surface Body as listed on Wikipedia
             _gravity.Add("sun", new Body(new Vector3(0, -274.0f, 0), new Vector3(0.0f, 0.0f, 0.0f), ground));
             _gravity.Add("mercury", new Body(new Vector3(0, -3.7f, 0), new Vector3(1.0f, 0.0f, 1.0f), ground));
             _gravity.Add("venus", new Body(new Vector3(0, -8.87f, 0), new Vector3(0.0f, 0.0f, 0.0f), ground));
@@ -399,7 +399,7 @@ namespace sgd_project
         {
             foreach(var pad in _pads)
             {
-               pad.Draw(look, projection);
+                pad.Draw(GraphicsDevice, look, projection);
             }
             _currentGravity.Ground.Draw(GraphicsDevice, look, projection);
 

@@ -1,25 +1,43 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿//File:     HeadsUpDisplay.cs
+//Name:     Samuel Lewis (5821103) & Thomas Kempton (5781000)
+//Date:     2013-04-15
+//Class:    Simulation and Game Development
+//Ass:      Project
+//
+//Desc:     
+//          Heads up display used to convey information to the player
+//
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework;
 
 namespace sgd_project
 {
+    /// <summary>
+    /// Heads up display used to convey information to the player
+    /// </summary>
     class HeadsUpDisplay
     {
-        private SpriteFont _font;
+        private readonly SpriteFont _font;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="HeadsUpDisplay"/> class.
+        /// </summary>
+        /// <param name="font">The font.</param>
         public HeadsUpDisplay(SpriteFont font)
         {
             _font = font;
         }
 
+        /// <summary>
+        /// Draws the HUD to the display
+        /// </summary>
+        /// <param name="spriteBatch">The sprite batch.</param>
+        /// <param name="view">The view.</param>
+        /// <param name="lem">The lem.</param>
         public void Draw(SpriteBatch spriteBatch, Viewport view, Lem lem)
         {
 
-            float height = _font.MeasureString("_").Y;
+            var height = _font.MeasureString("_").Y;
             spriteBatch.DrawString(_font,
                                    string.Format(@"X Rot.: {0:0.00}", MathHelper.ToDegrees(lem.RotationX)),
                                    new Vector2((view.Width / 2) + 2, height + 2),

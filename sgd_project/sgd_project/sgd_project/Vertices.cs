@@ -1,64 +1,82 @@
-﻿using System;
+﻿//File:     .cs
+//Name:     Samuel Lewis (5821103) & Thomas Kempton (5781000)
+//Date:     2013-04-15
+//Class:    Simulation and Game Development
+//Ass:      Project
+//
+//Desc:     
+//          Verticies used to draw a sphere
+//
+using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
 namespace sgd_project
 {
+    /// <summary>
+    /// Verticies used to draw a sphere
+    /// </summary>
     public class SphereVertices{
-        private Color   color;
-        private int     numPrimitives;
-        private Vector3 offset = Vector3.Zero;
+        private readonly Color   _color;
+        private Vector3 _offset = Vector3.Zero;
 
-        public SphereVertices(Color vertexColor, int totalPrimitives,
-                             Vector3 position)
+        /// <summary>
+        /// Initializes a new instance of the <see cref="SphereVertices"/> class.
+        /// </summary>
+        /// <param name="vertexColor">Color of the vertex.</param>
+        /// <param name="position">The position.</param>
+        public SphereVertices(Color vertexColor, Vector3 position)
         {
-            offset          = position;
-            color           = vertexColor;
-            numPrimitives   = totalPrimitives;
+            _offset          = position;
+            _color           = vertexColor;
         }
 
+        /// <summary>
+        /// Initializes the sphere.
+        /// </summary>
+        /// <param name="numSlices">The num slices.</param>
+        /// <param name="numStacks">The num stacks.</param>
+        /// <param name="radius">The radius.</param>
+        /// <returns></returns>
         public VertexPositionColor[] InitializeSphere(int numSlices,
                                                       int numStacks, float radius)
         {
-            Vector3[] position  = new Vector3[(numSlices + 1)
+            var position  = new Vector3[(numSlices + 1)
                                 *             (numStacks + 1)];
-            float angleX, angleY;
-            float rowHeight     = MathHelper.Pi/numStacks;
-            float colWidth      = MathHelper.TwoPi / numSlices;
-            float X, Y, Z, W;
+            var rowHeight     = MathHelper.Pi/numStacks;
+            var colWidth      = MathHelper.TwoPi / numSlices;
 
             // generate horizontal rows (stacks in sphere)
-            for (int stacks = 0; stacks <= numStacks; stacks++)
+            for (var stacks = 0; stacks <= numStacks; stacks++)
             {
-                angleX = MathHelper.PiOver2 - stacks * rowHeight;
-                Y      = radius * (float)Math.Sin(angleX);
-                W      =-radius * (float)Math.Cos(angleX);
+                var angleX = MathHelper.PiOver2 - stacks * rowHeight;
+                var y = radius * (float)Math.Sin(angleX);
+                var w = -radius * (float)Math.Cos(angleX);
 
                 // generate vertical columns (slices in sphere)
-                for (int slices = 0; slices <= numSlices; slices++)
+                for (var slices = 0; slices <= numSlices; slices++)
                 {
-                    angleY = slices * colWidth;
-                    X      = W * (float)Math.Sin(angleY);
-                    Z      = W * (float)Math.Cos(angleY);
+                    var angleY = slices * colWidth;
+                    var x = w * (float)Math.Sin(angleY);
+                    var z = w * (float)Math.Cos(angleY);
 
                     // position sphere vertices at offest from origin
                     position[stacks * numSlices + slices] =
-                    new Vector3(X + offset.X, Y + offset.Y, Z + offset.Z);
+                    new Vector3(x + _offset.X, y + _offset.Y, z + _offset.Z);
                 }
             }
-            int i = -1;
-            VertexPositionColor[] vertices
-                  = new VertexPositionColor[2 * numSlices * numStacks];
+            var i = -1;
+            var vertices = new VertexPositionColor[2 * numSlices * numStacks];
             
             // index vertices to draw sphere
-            for (int stacks = 0; stacks < numStacks; stacks++)
+            for (var stacks = 0; stacks < numStacks; stacks++)
             {
-                for (int slices = 0; slices < numSlices; slices++)
+                for (var slices = 0; slices < numSlices; slices++)
                 {
                     vertices[++i] = new VertexPositionColor(
-                                        position[stacks * numSlices + slices], color);
+                                        position[stacks * numSlices + slices], _color);
                     vertices[++i] = new VertexPositionColor(
-                                        position[(stacks + 1) * numSlices + slices], color);
+                                        position[(stacks + 1) * numSlices + slices], _color);
                 }
             }
             return vertices;

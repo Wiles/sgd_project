@@ -1,35 +1,106 @@
-﻿using System;
+﻿//File:     LEM.cs
+//Name:     Samuel Lewis (5821103) & Thomas Kempton (5781000)
+//Date:     2013-04-15
+//Class:    Simulation and Game Development
+//Ass:      Project
+//
+//Desc:     
+//          Lunar Excursion Module
+//
+using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
 namespace sgd_project
 {
+    /// <summary>
+    /// 
+    /// </summary>
     internal class Lem
     {
         private Model _model;
         private Model _flame;
+        /// <summary>
+        /// Gets or sets the position.
+        /// </summary>
+        /// <value>
+        /// The position.
+        /// </value>
         public Vector3 Position { get; set; }
+        /// <summary>
+        /// Gets or sets the rotation Z.
+        /// </summary>
+        /// <value>
+        /// The rotation Z.
+        /// </value>
         public float RotationZ { get; set; }
+        /// <summary>
+        /// Gets or sets the rotation X.
+        /// </summary>
+        /// <value>
+        /// The rotation X.
+        /// </value>
         public float RotationX { get; set; }
-        public Body Gravity { get; set; }
+        /// <summary>
+        /// Gets or sets the body.
+        /// </summary>
+        /// <value>
+        /// The body.
+        /// </value>
+        public Body Body { get; set; }
+        /// <summary>
+        /// The maximum rotations per second
+        /// </summary>
         private const float Rps = MathHelper.PiOver4;
+        /// <summary>
+        /// The max thrust
+        /// </summary>
         private const float MaxThrust = 5f;
+        /// <summary>
+        /// Gets or sets the velocity.
+        /// </summary>
+        /// <value>
+        /// The velocity.
+        /// </value>
         public Vector3 Velocity { get; set; }
+        /// <summary>
+        /// The min Y
+        /// </summary>
         public static readonly float MinY = 1.75f * Lander.Metre.Y;
+        /// <summary>
+        /// Gets the fuel.
+        /// </summary>
+        /// <value>
+        /// The fuel.
+        /// </value>
         public float Fuel { get; private set; }
-        public float _thrust;
-        public float _thrustX;
-        public float _thrustZ;
 
+        private float _thrust;
+        private float _thrustX;
+        private float _thrustZ;
+
+        /// <summary>
+        /// Inits the Lunar Excursion Module
+        /// </summary>
+        /// <param name="position">The position.</param>
+        /// <param name="model">The model.</param>
+        /// <param name="flame">The flame.</param>
+        /// <param name="gravity">The gravity.</param>
+        /// <param name="fuel">The fuel.</param>
         public void Init(Vector3 position, Model model, Model flame,  Body gravity, float fuel)
         {
             _model = model;
             _flame = flame;
             Position = position;
-            Gravity = gravity;
+            Body = gravity;
             Fuel = fuel;
         }
 
+        /// <summary>
+        /// Updates the Lunar Excursion Module
+        /// </summary>
+        /// <param name="delta">The delta.</param>
+        /// <param name="input">The input.</param>
         public void Update(long delta, Input input)
         {
             _thrustZ = 0;
@@ -41,7 +112,7 @@ namespace sgd_project
                 return;
             }
             var timePercent = delta/1000f;
-            Velocity += (Gravity.Gravity + Gravity.Wind) * timePercent;
+            Velocity += (Body.Gravity + Body.Wind) * timePercent;
 
             var thrust = Vector3.Zero;
             if(Fuel > 0)
@@ -84,6 +155,11 @@ namespace sgd_project
             }
         }
 
+        /// <summary>
+        /// Draws the Lunar Excursion Module to the graphcis device
+        /// </summary>
+        /// <param name="camera">The camera.</param>
+        /// <param name="projection">The projection.</param>
         public void Draw(Matrix camera, Matrix projection)
         {
             var transforms = new Matrix[_model.Bones.Count];
@@ -371,6 +447,10 @@ namespace sgd_project
             }
         }
 
+        /// <summary>
+        /// Gets the bounds.
+        /// </summary>
+        /// <returns></returns>
         public IBound[] GetBounds()
         {
             var m =

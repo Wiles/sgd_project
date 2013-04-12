@@ -1,9 +1,21 @@
-﻿using Microsoft.Xna.Framework;
+﻿//File:     Ground.cs
+//Name:     Samuel Lewis (5821103) & Thomas Kempton (5781000)
+//Date:     2013-04-15
+//Class:    Simulation and Game Development
+//Ass:      Project
+//
+//Desc:     
+//          Ground entity
+//
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
 namespace sgd_project
 {
-    public class Ground
+    /// <summary>
+    /// Ground Entity
+    /// </summary>
+    public class Ground : IEntity
     {
         private Effect _textureEffect;
         private EffectParameter _textureEffectWvp;
@@ -11,11 +23,14 @@ namespace sgd_project
         private Texture _grassTexture;
         private VertexPositionColorTexture[] _groundVertices;
 
-        public Ground()
-        {
-        }
-
-
+        /// <summary>
+        /// Inits the Ground entity
+        /// </summary>
+        /// <param name="textureEffect">The texture effect.</param>
+        /// <param name="textureEffectWvp">The texture effect WVP.</param>
+        /// <param name="textureEffectImage">The texture effect image.</param>
+        /// <param name="grassTexture">The grass texture.</param>
+        /// <param name="groundVertecies">The ground vertecies.</param>
         public void Init(Effect textureEffect, EffectParameter textureEffectWvp, EffectParameter textureEffectImage, Texture grassTexture, VertexPositionColorTexture[] groundVertecies)
         {
             _textureEffect = textureEffect;
@@ -25,11 +40,20 @@ namespace sgd_project
             _groundVertices = groundVertecies;
         }
 
-        public void Update()
+        /// <summary>
+        /// Updates this instance.
+        /// </summary>
+        public void Update(long delta, Input input)
         {
             
         }
 
+        /// <summary>
+        /// Draws the Ground
+        /// </summary>
+        /// <param name="device">The device.</param>
+        /// <param name="view">The view.</param>
+        /// <param name="projection">The projection.</param>
         public void Draw(GraphicsDevice device, Matrix view, Matrix projection)
         {
             // 1: declare matrices
@@ -50,7 +74,6 @@ namespace sgd_project
             
         }
 
-
         private void TextureShader(GraphicsDevice device, 
                                     PrimitiveType primitiveType,
                                    VertexPositionColorTexture[] vertexData,
@@ -63,11 +86,15 @@ namespace sgd_project
                                     primitiveType, vertexData, 0, numPrimitives);
         }
 
+        /// <summary>
+        /// Gets the bounds.
+        /// </summary>
+        /// <returns></returns>
         public IBound[] GetBounds()
         {
             return new IBound[]
                 {
-                    new BoundBox(new BoundingBox(new Vector3(-float.MaxValue, -1, -float.MaxValue), new Vector3(float.MaxValue, 1, float.MaxValue))), 
+                    new BoundBox(new BoundingBox(new Vector3(-float.MaxValue, -1, -float.MaxValue), new Vector3(float.MaxValue, 1, float.MaxValue)))
                 };
         }
     }
