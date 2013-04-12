@@ -349,15 +349,15 @@ namespace sgd_project
 
             InitMenu();
 
-            _lem.Init(new Vector3(0, 500, 0), _lemModel, _flame, _currentGravity, 100, _soundEffect, _audioListener);
+            _lem.Init(new Vector3(0, 3.05f * Metre.Y + Lem.MinY, 0), _lemModel, _flame, _currentGravity, 100, _soundEffect, _audioListener);
 
             var pad = new LandingPad();
-            pad.Init(new Vector3(0, 3, 0)*Metre, _landingPadGreen);
+            pad.Init(new Vector3(0, 3, 0)*Metre, _landingPad);
+            _pads.Add(pad);
+            pad = new LandingPad();
+            pad.Init(new Vector3(15, 3, 30) * Metre, _landingPadGreen);
             _pads.Add(pad);
             _currentObjective = pad;
-            pad = new LandingPad();
-            pad.Init(new Vector3(15, 3, 30)*Metre, _landingPad);
-            _pads.Add(pad);
 
         }
 
@@ -510,7 +510,7 @@ namespace sgd_project
             _menu.SelectedMenuScreen = _menu.MainMenuIndex;
             _lem.Dispose();
             _lem = new Lem();
-            _lem.Init(new Vector3(0, 500, 0), _lemModel, _flame, _currentGravity, 100, _soundEffect, _audioListener);
+            _lem.Init(new Vector3(0, 3.05f * Metre.Y + Lem.MinY, 0), _lemModel, _flame, _currentGravity, 100, _soundEffect, _audioListener);
             _running = true;
         }
 
