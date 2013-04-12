@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
@@ -58,6 +59,10 @@ namespace sgd_project
         private Effect _textureEffect;
         private EffectParameter _textureEffectImage;
         private EffectParameter _textureEffectWvp;
+        private Stream _soundfile;
+        private SoundEffect _soundEffect;
+
+        private AudioListener _audioListener = new AudioListener();
 
         public Lander()
         {
@@ -314,9 +319,8 @@ namespace sgd_project
 
             _menu.Initialize(GraphicsDevice.Viewport, _scoreFont, _menuMove, _menuSelect, _menuBack);
 
-
+            _soundEffect = Content.Load<SoundEffect>("Sounds\\engine");
             _hud = new HeadsUpDisplay(_scoreFont);
-
 
             var ground = new Ground();
             ground.Init(_textureEffect, _textureEffectWvp, _textureEffectImage, _grassTexture, _groundVertices);
@@ -339,7 +343,7 @@ namespace sgd_project
 
             InitMenu();
 
-            _lem.Init(new Vector3(0, 500, 0), _lemModel, _flame, _currentGravity, 100);
+            _lem.Init(new Vector3(0, 500, 0), _lemModel, _flame, _currentGravity, 100, _soundEffect, _audioListener);
 
             var pad = new LandingPad();
             pad.Init(new Vector3(0, 3, 0)*Metre, _landingPadGreen);
@@ -361,6 +365,7 @@ namespace sgd_project
             _menuMove.Dispose();
             _menuSelect.Dispose();
             _menuBack.Dispose();
+            _soundEffect.Dispose();
         }
 
         /// <summary>
@@ -465,6 +470,7 @@ namespace sgd_project
             Vector3 camera = Vector3.Transform(_cameraPosition, m);
             // Draw the model. A model can have multiple meshes, so loop.
             Matrix look = Matrix.CreateLookAt(_lem.Position + camera, _lem.Position, Vector3.Up);
+            _audioListener.Position = _lem.Position + camera;
             Matrix projection = Matrix.CreatePerspectiveFieldOfView(
                 MathHelper.ToRadians(80.0f), GraphicsDevice.Viewport.AspectRatio,
                 1.0f, 10000.0f);
@@ -487,13 +493,12 @@ namespace sgd_project
             base.Draw(gameTime);
         }
 
-
         public void NewGame()
         {
             _menu.MainMenuIndex = _menu.Screens.IndexOf(_pause);
             _menu.SelectedMenuScreen = _menu.MainMenuIndex;
             _lem = new Lem();
-            _lem.Init(new Vector3(0, 500, 0), _lemModel, _flame, _currentGravity, 100);
+            _lem.Init(new Vector3(0, 500, 0), _lemModel, _flame, _currentGravity, 100, _soundEffect, _audioListener);
             _running = true;
         }
 

@@ -9,7 +9,9 @@
 //
 
 using System;
+using System.Linq;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Graphics;
 
 namespace sgd_project
@@ -22,12 +24,12 @@ namespace sgd_project
         /// <summary>
         /// The maximum rotations per second
         /// </summary>
-        private const float Rps = MathHelper.PiOver4;
+        public float Rps {get; set;}
 
         /// <summary>
         /// The max thrust
         /// </summary>
-        private const float MaxThrust = 5f;
+        public float MaxThrust { get; set; }
 
         /// <summary>
         /// The min Y
@@ -88,6 +90,10 @@ namespace sgd_project
         /// </value>
         public float Fuel { get; private set; }
 
+        private SoundEffectInstance _engine;
+        private SoundEffectInstance[] _thrusterSound = new SoundEffectInstance[4];
+        private AudioListener _listener;
+
         /// <summary>
         /// Inits the Lunar Excursion Module
         /// </summary>
@@ -96,13 +102,27 @@ namespace sgd_project
         /// <param name="flame">The flame.</param>
         /// <param name="gravity">The gravity.</param>
         /// <param name="fuel">The fuel.</param>
-        public void Init(Vector3 position, Model model, Model flame, Body gravity, float fuel)
+        /// <param name="engine">The engine sound effect </param>
+        public void Init(Vector3 position, Model model, Model flame, Body gravity, float fuel, SoundEffect engine, AudioListener listener)
         {
+            MaxThrust = 5f;
+            Rps = MathHelper.PiOver4/2;
             _model = model;
             _flame = flame;
             Position = position;
             Body = gravity;
             Fuel = fuel;
+            _engine = engine.CreateInstance();
+            _engine.Volume = 0;
+            _engine.IsLooped = true;
+            _engine.Apply3D(listener, new AudioEmitter());
+            _engine.Play();
+            _listener = listener;
+            foreach (var i in Enumerable.Range(0,4))
+            {
+                _thrusterSound[i] = engine.CreateInstance();
+                //_thrusterSound[i].Play();
+            }
         }
 
         /// <summary>
@@ -123,9 +143,14 @@ namespace sgd_project
             float timePercent = delta/1000f;
             Velocity += (Body.Gravity + Body.Wind)*timePercent;
 
+            _engine.Volume = 0;
             Vector3 thrust = Vector3.Zero;
             if (Fuel > 0)
             {
+                if (input.Thrust() > 0)
+                {
+                    _engine.Volume = (float) (.5 + (input.Thrust()*.5));
+                }
                 thrust = new Vector3(0, input.Thrust()*timePercent*MaxThrust, 0);
                 _thrust = input.Thrust();
                 Fuel -= Math.Abs(input.Thrust()*timePercent);
@@ -156,8 +181,6 @@ namespace sgd_project
                 Fuel -= Math.Abs(_thrustX)*timePercent;
                 RotationX = MathHelper.Clamp(RotationX, -MathHelper.PiOver4, MathHelper.PiOver4);
             }
-
-
             if (Fuel < 0)
             {
                 Fuel = 0;
@@ -197,12 +220,19 @@ namespace sgd_project
             transforms = new Matrix[_flame.Bones.Count];
             _flame.CopyAbsoluteBoneTransformsTo(transforms);
 
+
+            Matrix m =
+                Matrix.CreateFromAxisAngle(Vector3.UnitZ, RotationZ) *
+                Matrix.CreateFromAxisAngle(Vector3.UnitX, RotationX);
+            Vector3 pos = Position + Vector3.Transform(new Vector3(0, -1.5f, 0) * Lander.Metre, m);
+            var emitter = new AudioEmitter();
+            emitter.Position = pos;
+            _engine.Apply3D(_listener, emitter);
+
+
             foreach (ModelMesh mesh in _flame.Meshes)
             {
-                Matrix m =
-                    Matrix.CreateFromAxisAngle(Vector3.UnitZ, RotationZ)*
-                    Matrix.CreateFromAxisAngle(Vector3.UnitX, RotationX);
-                Vector3 pos = Vector3.Transform(new Vector3(0, -1.5f, 0)*Lander.Metre, m);
+                pos = Vector3.Transform(new Vector3(0, -1.5f, 0)*Lander.Metre, m);
 
                 // This is where the mesh orientation is set, as well 
                 // as our camera and projection.
@@ -226,10 +256,7 @@ namespace sgd_project
             {
                 foreach (ModelMesh mesh in _flame.Meshes)
                 {
-                    Matrix m =
-                        Matrix.CreateFromAxisAngle(Vector3.UnitZ, RotationZ)*
-                        Matrix.CreateFromAxisAngle(Vector3.UnitX, RotationX);
-                    Vector3 pos = Vector3.Transform(new Vector3(1.3f, .35f, -0.05f)*Lander.Metre, m);
+                    pos = Vector3.Transform(new Vector3(1.3f, .35f, -0.05f)*Lander.Metre, m);
 
                     // This is where the mesh orientation is set, as well 
                     // as our camera and projection.
@@ -253,10 +280,7 @@ namespace sgd_project
 
                 foreach (ModelMesh mesh in _flame.Meshes)
                 {
-                    Matrix m =
-                        Matrix.CreateFromAxisAngle(Vector3.UnitZ, RotationZ)*
-                        Matrix.CreateFromAxisAngle(Vector3.UnitX, RotationX);
-                    Vector3 pos = Vector3.Transform(new Vector3(-1.3f, 1.0f, 0.1f)*Lander.Metre, m);
+                    pos = Vector3.Transform(new Vector3(-1.3f, 1.0f, 0.1f)*Lander.Metre, m);
 
                     // This is where the mesh orientation is set, as well 
                     // as our camera and projection.
@@ -281,10 +305,7 @@ namespace sgd_project
             {
                 foreach (ModelMesh mesh in _flame.Meshes)
                 {
-                    Matrix m =
-                        Matrix.CreateFromAxisAngle(Vector3.UnitZ, RotationZ)*
-                        Matrix.CreateFromAxisAngle(Vector3.UnitX, RotationX);
-                    Vector3 pos = Vector3.Transform(new Vector3(1.3f, 1f, -0.05f)*Lander.Metre, m);
+                    pos = Vector3.Transform(new Vector3(1.3f, 1f, -0.05f)*Lander.Metre, m);
 
                     // This is where the mesh orientation is set, as well 
                     // as our camera and projection.
@@ -308,10 +329,7 @@ namespace sgd_project
 
                 foreach (ModelMesh mesh in _flame.Meshes)
                 {
-                    Matrix m =
-                        Matrix.CreateFromAxisAngle(Vector3.UnitZ, RotationZ)*
-                        Matrix.CreateFromAxisAngle(Vector3.UnitX, RotationX);
-                    Vector3 pos = Vector3.Transform(new Vector3(-1.3f, .35f, 0.1f)*Lander.Metre, m);
+                    pos = Vector3.Transform(new Vector3(-1.3f, .35f, 0.1f)*Lander.Metre, m);
 
                     // This is where the mesh orientation is set, as well 
                     // as our camera and projection.
@@ -336,10 +354,7 @@ namespace sgd_project
             {
                 foreach (ModelMesh mesh in _flame.Meshes)
                 {
-                    Matrix m =
-                        Matrix.CreateFromAxisAngle(Vector3.UnitZ, RotationZ)*
-                        Matrix.CreateFromAxisAngle(Vector3.UnitX, RotationX);
-                    Vector3 pos = Vector3.Transform(new Vector3(-0.05f, .35f, 1.3f)*Lander.Metre, m);
+                    pos = Vector3.Transform(new Vector3(-0.05f, .35f, 1.3f)*Lander.Metre, m);
 
                     // This is where the mesh orientation is set, as well 
                     // as our camera and projection.
@@ -363,10 +378,7 @@ namespace sgd_project
 
                 foreach (ModelMesh mesh in _flame.Meshes)
                 {
-                    Matrix m =
-                        Matrix.CreateFromAxisAngle(Vector3.UnitZ, RotationZ)*
-                        Matrix.CreateFromAxisAngle(Vector3.UnitX, RotationX);
-                    Vector3 pos = Vector3.Transform(new Vector3(0.1f, 1.0f, -1.3f)*Lander.Metre, m);
+                    pos = Vector3.Transform(new Vector3(0.1f, 1.0f, -1.3f)*Lander.Metre, m);
 
                     // This is where the mesh orientation is set, as well 
                     // as our camera and projection.
@@ -391,10 +403,7 @@ namespace sgd_project
             {
                 foreach (ModelMesh mesh in _flame.Meshes)
                 {
-                    Matrix m =
-                        Matrix.CreateFromAxisAngle(Vector3.UnitZ, RotationZ)*
-                        Matrix.CreateFromAxisAngle(Vector3.UnitX, RotationX);
-                    Vector3 pos = Vector3.Transform(new Vector3(-0.05f, 1f, 1.3f)*Lander.Metre, m);
+                    pos = Vector3.Transform(new Vector3(-0.05f, 1f, 1.3f)*Lander.Metre, m);
 
                     // This is where the mesh orientation is set, as well 
                     // as our camera and projection.
@@ -418,10 +427,7 @@ namespace sgd_project
 
                 foreach (ModelMesh mesh in _flame.Meshes)
                 {
-                    Matrix m =
-                        Matrix.CreateFromAxisAngle(Vector3.UnitZ, RotationZ)*
-                        Matrix.CreateFromAxisAngle(Vector3.UnitX, RotationX);
-                    Vector3 pos = Vector3.Transform(new Vector3(0.1f, .35f, -1.3f)*Lander.Metre, m);
+                    pos = Vector3.Transform(new Vector3(0.1f, .35f, -1.3f)*Lander.Metre, m);
 
                     // This is where the mesh orientation is set, as well 
                     // as our camera and projection.
