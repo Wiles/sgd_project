@@ -1,4 +1,4 @@
-﻿//File:     .cs
+﻿//File:     Vertices.cs
 //Name:     Samuel Lewis (5821103) & Thomas Kempton (5781000)
 //Date:     2013-04-15
 //Class:    Simulation and Game Development
