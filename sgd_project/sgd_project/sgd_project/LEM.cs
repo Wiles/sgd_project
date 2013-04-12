@@ -19,7 +19,7 @@ namespace sgd_project
     /// <summary>
     /// 
     /// </summary>
-    internal class Lem
+    internal class Lem : IEntity, IDisposable
     {
         /// <summary>
         /// The maximum rotations per second
@@ -180,9 +180,10 @@ namespace sgd_project
         /// <summary>
         /// Draws the Lunar Excursion Module to the graphcis device
         /// </summary>
+        /// <param name="graphics">graphics device </param>
         /// <param name="camera">The camera.</param>
         /// <param name="projection">The projection.</param>
-        public void Draw(Matrix camera, Matrix projection)
+        public void Draw(GraphicsDevice graphics, Matrix camera, Matrix projection)
         {
             var transforms = new Matrix[_model.Bones.Count];
             _model.CopyAbsoluteBoneTransformsTo(transforms);
@@ -470,6 +471,11 @@ namespace sgd_project
                         new BoundingSphere(
                             Position + Vector3.Transform((new Vector3(1.47f, -1.675f, -1.47f)*Lander.Metre), m), 5f))
                 };
+        }
+
+        public void Dispose()
+        {
+            _engine.Dispose();
         }
     }
 }

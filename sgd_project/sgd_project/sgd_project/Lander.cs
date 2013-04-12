@@ -409,7 +409,7 @@ namespace sgd_project
 
         private void DrawLem(Matrix look, Matrix projection)
         {
-            _lem.Draw(look, projection);
+            _lem.Draw( GraphicsDevice, look, projection);
         }
 
         private void DrawScene(Matrix look, Matrix projection)
@@ -507,6 +507,7 @@ namespace sgd_project
         {
             _menu.MainMenuIndex = _menu.Screens.IndexOf(_pause);
             _menu.SelectedMenuScreen = _menu.MainMenuIndex;
+            _lem.Dispose();
             _lem = new Lem();
             _lem.Init(new Vector3(0, 500, 0), _lemModel, _flame, _currentGravity, 100, _soundEffect, _audioListener);
             _running = true;
