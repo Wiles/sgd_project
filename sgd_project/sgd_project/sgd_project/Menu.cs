@@ -12,7 +12,6 @@ using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
 
 namespace sgd_project
 {
@@ -25,10 +24,10 @@ namespace sgd_project
         private bool _enter;
         private bool _escape;
         private SpriteFont _font;
-        private SoundEffect _menuBack;
+        private SoundEffectInstance _menuBack;
 
-        private SoundEffect _menuMove;
-        private SoundEffect _menuSelect;
+        private SoundEffectInstance _menuMove;
+        private SoundEffectInstance _menuSelect;
         private bool _up;
         private Viewport _viewport;
 
@@ -217,9 +216,12 @@ namespace sgd_project
         {
             _viewport = viewport;
             _font = font;
-            _menuMove = move;
-            _menuSelect = select;
-            _menuBack = back;
+            _menuMove = move.CreateInstance();
+            _menuMove.Volume = .05f;
+            _menuSelect = select.CreateInstance();
+            _menuSelect.Volume = .05f;
+            _menuBack = back.CreateInstance();
+            _menuBack.Volume = .05f;
         }
 
         /// <summary>

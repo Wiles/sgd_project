@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
@@ -13,51 +14,55 @@ namespace sgd_project
     /// </summary>
     public class Lander : Game
     {
-        readonly GraphicsDeviceManager _graphics;
+        private const float Boundary = 100000.0f;
+        private const float CameraVerticalAngle = -MathHelper.PiOver4;
         public static readonly Vector3 Metre = new Vector3(39.4f, 39.4f, 39.4f);
-        private Texture2D _grassTexture;
-        private SpriteBatch _spriteBatch;
-        private readonly List<LandingPad> _pads = new List<LandingPad>();
-
-        private Lem _lem = new Lem();
-
-        private const float Boundary = 1000.0f;
-
-        private Model _lemModel;
-        private Model _flame;
-        private Model _landingPad;
-
-        private bool _invertedControls;
-
         private readonly Vector3 _cameraPosition = new Vector3(0.0f, 0.0f, 250.0f);
-        private const float CameraHorizontalAngle = -MathHelper.PiOver4;
-        private const float CameraVerticalAngle = 0;
-        private Effect _textureEffect;
-        private EffectParameter _textureEffectWvp;
-        private EffectParameter _textureEffectImage;
+        private readonly GraphicsDeviceManager _graphics;
+        private readonly Dictionary<string, Body> _gravity = new Dictionary<string, Body>();
+
+        private LandingPad _currentObjective;
+        private bool _storeAvailable;
+
+        private readonly VertexPositionColorTexture[] _groundVertices = new VertexPositionColorTexture[4];
+        private readonly List<LandingPad> _pads = new List<LandingPad>();
+        private Viewport _bottomView;
+        private BlendState _bs;
+        private float _cameraHorizontalAngle;
+        private Body _currentGravity;
+        private bool _debug = true;
+        private DepthStencilState _dss;
+
+        private Model _flame;
+        private MenuScreen _gameOver;
+        private Texture2D _grassTexture;
+        private HeadsUpDisplay _hud;
+        private bool _invertedControls;
+        private Model _landingPad;
+        private Model _landingPadGreen;
+        private Lem _lem = new Lem();
+        private Model _lemModel;
+        private Viewport _mainView;
+        private Menu _menu;
+
         private SoundEffect _menuBack;
         private SoundEffect _menuMove;
         private SoundEffect _menuSelect;
         private MenuScreen _pause;
-        private bool _running;
-        private bool _debug = true;
-        private MenuScreen _gameOver;
-        private Menu _menu;
-        private Body _currentGravity;
-        private readonly Dictionary<string, Body> _gravity = new Dictionary<string, Body>();
-
-        readonly VertexPositionColorTexture[] _groundVertices = new VertexPositionColorTexture[4];
-        private SpriteFont _scoreFont;
-        private RasterizerState _rs;
-        private DepthStencilState _dss;
-        private BlendState _bs;
-        private SamplerState _ss;
-
-        private HeadsUpDisplay _hud;
-        private Viewport _mainView;
-        private Viewport _bottomView;
         private Effect _positionColorEffect;
         private EffectParameter _positionColorEffectWvp;
+        private RasterizerState _rs;
+        private bool _running;
+        private SpriteFont _scoreFont;
+        private SpriteBatch _spriteBatch;
+        private SamplerState _ss;
+        private Effect _textureEffect;
+        private EffectParameter _textureEffectImage;
+        private EffectParameter _textureEffectWvp;
+        private Stream _soundfile;
+        private SoundEffect _soundEffect;
+
+        private AudioListener _audioListener = new AudioListener();
 
         public Lander()
         {
@@ -73,7 +78,6 @@ namespace sgd_project
         /// </summary>
         protected override void Initialize()
         {
-
             GraphicsDevice.RasterizerState = RasterizerState.CullNone;
 
             _textureEffect = Content.Load<Effect>("Shaders\\Texture");
@@ -87,7 +91,7 @@ namespace sgd_project
             const float border = Boundary;
             var uv = new Vector2(0.0f, 0.0f);
             var pos = new Vector3(0.0f, 0.0f, 0.0f);
-            var color = Color.White;
+            Color color = Color.White;
 
             // top left
             uv.X = 0.0f;
@@ -104,7 +108,7 @@ namespace sgd_project
             pos.Y = 0.0f;
             pos.Z = border;
             _groundVertices[1] = new VertexPositionColorTexture(pos, color, uv);
-            
+
             // top right
             uv.X = 10.0f;
             uv.Y = 0.0f;
@@ -190,10 +194,14 @@ namespace sgd_project
 
             e = new Dictionary<string, Action>
                 {
-                    {"Start Game", () => {
-                        _menu.MainMenuIndex = _menu.Screens.IndexOf(_pause);
-                        _menu.SelectedMenuScreen = _menu.MainMenuIndex;
-                        NewGame();}},
+                    {
+                        "Start Game", () =>
+                            {
+                                _menu.MainMenuIndex = _menu.Screens.IndexOf(_pause);
+                                _menu.SelectedMenuScreen = _menu.MainMenuIndex;
+                                NewGame();
+                            }
+                    },
                     {"Planet", () => { _menu.SelectedMenuScreen = _menu.Screens.IndexOf(planet); }},
                     {"Options", () => { _menu.SelectedMenuScreen = _menu.Screens.IndexOf(options); }},
                     {"About", () => { _menu.SelectedMenuScreen = _menu.Screens.IndexOf(about); }},
@@ -261,10 +269,12 @@ namespace sgd_project
             controls.Elements = e;
 
             e = _gravity.ToList().ToDictionary<KeyValuePair<string, Body>, string, Action>(
-                pair => string.Format(@"{0, 10} G: {1:0.##}mpsps W: {2:0.##}mps", pair.Key, -pair.Value.Gravity.Y, pair.Value.Wind.Length()), 
+                pair =>
+                string.Format(@"{0, 10} G: {1:0.##}mpsps W: {2:0.##}mps", pair.Key, -pair.Value.Gravity.Y,
+                              pair.Value.Wind.Length()),
                 pair => (() =>
                     {
-                        _lem.Gravity = pair.Value;
+                        _lem.Body = pair.Value;
                         _currentGravity = pair.Value;
                         _menu.SelectedMenuScreen = _menu.MainMenuIndex;
                     }));
@@ -293,7 +303,7 @@ namespace sgd_project
             _mainView = GraphicsDevice.Viewport;
 
             _bottomView = _mainView;
-            _bottomView.Height = _mainView.Height / 3;
+            _bottomView.Height = _mainView.Height/3;
             _bottomView.Width = _bottomView.Height;
             _bottomView.X = 2;
             _bottomView.Y = 2;
@@ -305,17 +315,22 @@ namespace sgd_project
             _menuSelect = Content.Load<SoundEffect>("Sounds\\menuSelect");
             _scoreFont = Content.Load<SpriteFont>("Fonts\\Mono");
             _menuBack = Content.Load<SoundEffect>("Sounds\\menuBack");
-            _flame   = Content.Load<Model>("models\\jet\\jet");
+            _flame = Content.Load<Model>("models\\jet\\jet");
             _landingPad = Content.Load<Model>("models\\landingPad\\landingPad");
-            _menu.Initialize(GraphicsDevice.Viewport, _scoreFont, _menuMove, _menuSelect, _menuBack);
+            _landingPadGreen = Content.Load<Model>("models\\landingPad\\landingPadGreen");
+
 
             var hudTexture = Content.Load<Texture2D>("Images\\hud");
             _hud = new HeadsUpDisplay(_scoreFont, hudTexture);
-                        
+             
+            _menu.Initialize(GraphicsDevice.Viewport, _scoreFont, _menuMove, _menuSelect, _menuBack);
+
+            _soundEffect = Content.Load<SoundEffect>("Sounds\\engine");
+
             var ground = new Ground();
             ground.Init(_textureEffect, _textureEffectWvp, _textureEffectImage, _grassTexture, _groundVertices);
 
-            //Equitorial Surface Gravity as listed on Wikipedia
+            //Equitorial Surface Body as listed on Wikipedia
             _gravity.Add("sun", new Body(new Vector3(0, -274.0f, 0), new Vector3(0.0f, 0.0f, 0.0f), ground));
             _gravity.Add("mercury", new Body(new Vector3(0, -3.7f, 0), new Vector3(1.0f, 0.0f, 1.0f), ground));
             _gravity.Add("venus", new Body(new Vector3(0, -8.87f, 0), new Vector3(0.0f, 0.0f, 0.0f), ground));
@@ -333,14 +348,16 @@ namespace sgd_project
 
             InitMenu();
 
-            _lem.Init(new Vector3(0, 500, 0), _lemModel, _flame, _currentGravity, 100);
+            _lem.Init(new Vector3(0, 500, 0), _lemModel, _flame, _currentGravity, 100, _soundEffect, _audioListener);
 
             var pad = new LandingPad();
-            pad.Init(new Vector3(0, 3, 0) * Metre, _landingPad);
+            pad.Init(new Vector3(0, 3, 0)*Metre, _landingPadGreen);
             _pads.Add(pad);
+            _currentObjective = pad;
             pad = new LandingPad();
-            pad.Init(new Vector3(15, 3, 30) * Metre, _landingPad);
+            pad.Init(new Vector3(15, 3, 30)*Metre, _landingPad);
             _pads.Add(pad);
+
         }
 
         /// <summary>
@@ -354,6 +371,7 @@ namespace sgd_project
             _menuSelect.Dispose();
             _menuBack.Dispose();
             _hud.Dispose();
+            _soundEffect.Dispose();
         }
 
         /// <summary>
@@ -363,22 +381,19 @@ namespace sgd_project
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Update(GameTime gameTime)
         {
-            var delta = gameTime.ElapsedGameTime.Milliseconds;
-            var gpState = GamePad.GetState(PlayerIndex.One);
-            var kbState = Keyboard.GetState();
+            int delta = gameTime.ElapsedGameTime.Milliseconds;
+            GamePadState gpState = GamePad.GetState(PlayerIndex.One);
+            KeyboardState kbState = Keyboard.GetState();
             var input = new Input(gpState, kbState, _invertedControls);
 
-            if(gpState.IsButtonDown(Buttons.Start) || kbState.IsKeyDown(Keys.Escape))
+            if (gpState.IsButtonDown(Buttons.Start) || kbState.IsKeyDown(Keys.Escape))
             {
                 _running = false;
             }
 
             if (_running)
             {
-              //  _cameraHorizontalAngle += delta/1000.0f*gpState.ThumbSticks.Right.Y*CameraRps;
-               // _cameraHorizontalAngle = MathHelper.Clamp(_cameraHorizontalAngle, -MathHelper.PiOver2*.95f,
-               //                                           MathHelper.PiOver2*.95f);
-              //  _cameraVerticalAngle -= delta/1000.0f*gpState.ThumbSticks.Right.X*CameraRps;
+                _cameraHorizontalAngle = input.CameraRotationY()*MathHelper.Pi;
 
                 _lem.Update(delta, input);
             }
@@ -399,27 +414,26 @@ namespace sgd_project
 
         private void DrawScene(Matrix look, Matrix projection)
         {
-            foreach(var pad in _pads)
+            foreach (LandingPad pad in _pads)
             {
-               pad.Draw(look, projection);
+                pad.Draw(GraphicsDevice, look, projection);
             }
             _currentGravity.Ground.Draw(GraphicsDevice, look, projection);
-
         }
 
         private void DrawDebug(Matrix look, Matrix projection)
         {
-            if(_debug)
+            if (_debug)
             {
-                foreach(var b in _lem.GetBounds())
+                foreach (IBound b in _lem.GetBounds())
                 {
                     b.Draw(GraphicsDevice, look, projection);
                 }
-                foreach (var pad in _pads)
+                foreach (LandingPad pad in _pads)
                 {
-                    foreach (var bound in pad.GetBounds())
+                    foreach (IBound bound in pad.GetBounds())
                     {
-                       //bound.Draw(GraphicsDevice, look, projection);
+                        //bound.Draw(GraphicsDevice, look, projection);
                     }
                 }
             }
@@ -449,7 +463,6 @@ namespace sgd_project
             GraphicsDevice.RasterizerState = _rs;
             GraphicsDevice.DepthStencilState = _dss;
             GraphicsDevice.SamplerStates[0] = _ss;
-        
         }
 
         /// <summary>
@@ -461,13 +474,14 @@ namespace sgd_project
             GraphicsDevice.Viewport = _mainView;
             GraphicsDevice.Clear(Color.CornflowerBlue);
             // Copy any parent transforms.
-            var m = 
-                Matrix.CreateFromAxisAngle(Vector3.UnitX, CameraHorizontalAngle) *
-                Matrix.CreateFromAxisAngle(Vector3.UnitY, CameraVerticalAngle);
-            var camera = Vector3.Transform(_cameraPosition, m);
+            Matrix m =
+                Matrix.CreateFromAxisAngle(Vector3.UnitX, CameraVerticalAngle)*
+                Matrix.CreateFromAxisAngle(Vector3.UnitY, _cameraHorizontalAngle);
+            Vector3 camera = Vector3.Transform(_cameraPosition, m);
             // Draw the model. A model can have multiple meshes, so loop.
-            var look = Matrix.CreateLookAt(_lem.Position + camera, _lem.Position, Vector3.Up);
-            var projection = Matrix.CreatePerspectiveFieldOfView(
+            Matrix look = Matrix.CreateLookAt(_lem.Position + camera, _lem.Position, Vector3.Up);
+            _audioListener.Position = _lem.Position + camera;
+            Matrix projection = Matrix.CreatePerspectiveFieldOfView(
                 MathHelper.ToRadians(80.0f), GraphicsDevice.Viewport.AspectRatio,
                 1.0f, 10000.0f);
 
@@ -478,7 +492,8 @@ namespace sgd_project
 
             GraphicsDevice.Viewport = _bottomView;
 
-            look = Matrix.CreateLookAt(_lem.Position, new Vector3(_lem.Position.X, .5f, _lem.Position.Z + .1f), Vector3.Down);
+            look = Matrix.CreateLookAt(_lem.Position, new Vector3(_lem.Position.X, .5f, _lem.Position.Z + .1f),
+                                       Vector3.Down);
             projection = Matrix.CreatePerspectiveFieldOfView(
                 MathHelper.ToRadians(30.0f), GraphicsDevice.Viewport.AspectRatio,
                 1.0f, 10000.0f);
@@ -488,69 +503,76 @@ namespace sgd_project
             base.Draw(gameTime);
         }
 
-
         public void NewGame()
         {
             _menu.MainMenuIndex = _menu.Screens.IndexOf(_pause);
             _menu.SelectedMenuScreen = _menu.MainMenuIndex;
             _lem = new Lem();
-            _lem.Init(new Vector3(0, 500, 0), _lemModel, _flame, _currentGravity, 100);
+            _lem.Init(new Vector3(0, 500, 0), _lemModel, _flame, _currentGravity, 100, _soundEffect, _audioListener);
             _running = true;
         }
 
-        public void GameOver()
+        public void GameOver( string reason )
         {
             _running = false;
+            _gameOver.Title = string.Format(@"Game Over - {0}", reason);
             _menu.MainMenuIndex = _menu.Screens.IndexOf(_gameOver);
             _menu.SelectedMenuScreen = _menu.MainMenuIndex;
         }
 
         private void Collision()
         {
-
-            foreach(var bound in _lem.GetBounds())
+            foreach (IBound bound in _lem.GetBounds())
             {
-                foreach (var b in _currentGravity.Ground.GetBounds())
+                foreach (IBound b in _currentGravity.Ground.GetBounds())
                 {
-                    if(bound.Intersects(b))
+                    if (bound.Intersects(b))
                     {
-                        //touched the ground.
-                        GameOver();
+                        GameOver("Lander touched the ground");
                         break;
                     }
                 }
             }
 
-            foreach(var pad in _pads)
+            foreach (LandingPad pad in _pads)
             {
-                foreach(var bound in pad.GetBounds())
+                foreach (IBound bound in pad.GetBounds())
                 {
                     while (true)
                     {
-                        var collisions = 0;
-                        foreach (var lemBound in _lem.GetBounds())
+                        int collisions = 0;
+                        foreach (IBound lemBound in _lem.GetBounds())
                         {
                             if (bound.Intersects(lemBound))
                             {
                                 collisions++;
                             }
                         }
-                        if(collisions == 4)
+                        if (collisions == 4)
                         {
-                            if(_lem.Velocity.Y < 0)
+                            _storeAvailable = true;
+
+                            if(pad == _currentObjective)
                             {
-                                _lem.Position = new Vector3(_lem.Position.X, bound.Max().Y + Lem.MinY + 2.15f, _lem.Position.Z);
+                                pad.Model = _landingPad;
+                                _currentObjective = _pads[(_pads.IndexOf(pad) + 1) % _pads.Count];
+                                _currentObjective.Model = _landingPadGreen;
+                            }
+
+                            if (_lem.Velocity.Y < 0)
+                            {
+                                _lem.Position = new Vector3(_lem.Position.X, bound.Max().Y + Lem.MinY + 2.15f,
+                                                            _lem.Position.Z);
                             }
                             if (_lem.Velocity.Length() > 10)
                             {
-                                //Hit ground too hard
-                                GameOver();
+                                GameOver("Landed too fast");
                             }
                             _lem.Velocity = Vector3.Zero;
                             break;
                         }
 
-                        if(collisions == 0)
+                        if (collisions == 0)
                         {
                             break;
                         }
@@ -558,15 +580,14 @@ namespace sgd_project
 
                         if (Math.Abs(_lem.RotationX) == 0.00 && Math.Abs(_lem.RotationZ) == 0.0)
                         {
-                            //Not fully on pad
-                            GameOver();
+                            GameOver(string.Format(@"Only {0} feet on landing pad", collisions));
                             break;
                         }
 
-                        if (Math.Abs(_lem.RotationX) > MathHelper.ToRadians(5) || Math.Abs(_lem.RotationZ) > MathHelper.ToRadians(5) && _lem.Velocity.Y < 0)
+                        if (Math.Abs(_lem.RotationX) > MathHelper.ToRadians(5) ||
+                            Math.Abs(_lem.RotationZ) > MathHelper.ToRadians(5) && _lem.Velocity.Y < 0)
                         {
-                            //landed to steeply
-                            GameOver();
+                            GameOver("Landing angle too steep");
                             break;
                         }
 

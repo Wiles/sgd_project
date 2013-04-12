@@ -1,92 +1,142 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿//File:     Input.cs
+//Name:     Samuel Lewis (5821103) & Thomas Kempton (5781000)
+//Date:     2013-04-15
+//Class:    Simulation and Game Development
+//Ass:      Project
+//
+//Desc:     
+//          Wrapper for user input handles both Keyboard and Game pad
+//
+
 using Microsoft.Xna.Framework.Input;
 
 namespace sgd_project
 {
-    class Input
+    /// <summary>
+    /// Wrapper for user input handles both Keyboard and Game pad
+    /// </summary>
+    public class Input
     {
-        private GamePadState gamePad;
-        private KeyboardState kb;
-        private bool inverted;
+        private readonly bool _inverted;
+        private GamePadState _gamePad;
+        private KeyboardState _keyboard;
 
-        public Input(GamePadState pg, KeyboardState kb, bool inverted)
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Input"/> class.
+        /// </summary>
+        /// <param name="pg">The pg.</param>
+        /// <param name="keyboard">The keyboard.</param>
+        /// <param name="inverted">if set to <c>true</c> [inverted].</param>
+        public Input(GamePadState pg, KeyboardState keyboard, bool inverted)
         {
-            this.gamePad = pg;
-            this.kb = kb;
-            this.inverted = inverted;
+            _gamePad = pg;
+            _keyboard = keyboard;
+            _inverted = inverted;
         }
 
+        /// <summary>
+        /// Thruster input
+        /// </summary>
+        /// <returns>Thrust level</returns>
         public float Thrust()
         {
-            var val = 0f;
-            if (kb.IsKeyDown(Keys.Space))
+            if (_keyboard.IsKeyDown(Keys.Space))
             {
-                val = 1.0f;
+                return 1.0f;
             }
-            else
-            {
-                val = gamePad.Triggers.Right;
-            }
-            return val;
+            return _gamePad.Triggers.Right;
         }
 
+        /// <summary>
+        /// Thruster Z rotation
+        /// </summary>
+        /// <returns></returns>
         public float RotationZ()
         {
-            var val = 0f;
-            if (kb.IsKeyDown(Keys.D))
+            if (_keyboard.IsKeyDown(Keys.D))
             {
-                val = 1.0f;
+                return 1.0f;
             }
-            else if (kb.IsKeyDown(Keys.A))
+            if (_keyboard.IsKeyDown(Keys.A))
             {
-                val = -1.0f;
+                return -1.0f;
             }
-            else
-            {
-                val = gamePad.ThumbSticks.Left.X;
-            }
-            return inverted ? -val : val;
+            return _inverted ? -_gamePad.ThumbSticks.Left.X : _gamePad.ThumbSticks.Left.X;
         }
 
+        /// <summary>
+        /// Thruster X rotation
+        /// </summary>
+        /// <returns></returns>
         public float RotationX()
         {
-            var val = 0f;
-            if (kb.IsKeyDown(Keys.W))
+            if (_keyboard.IsKeyDown(Keys.W))
             {
-                val = 1.0f;
+                return 1.0f;
             }
-            else if (kb.IsKeyDown(Keys.S))
+            if (_keyboard.IsKeyDown(Keys.S))
             {
-                val = -1.0f;
+                return -1.0f;
             }
-            else
-            {
-                val = gamePad.ThumbSticks.Left.Y;
-            }
-            return inverted ? -val : val;
+
+            return _inverted ? -_gamePad.ThumbSticks.Left.Y : _gamePad.ThumbSticks.Left.Y;
         }
 
+        /// <summary>
+        /// Cameras Y rotation
+        /// </summary>
+        /// <returns></returns>
+        public float CameraRotationY()
+        {
+            if (_keyboard.IsKeyDown(Keys.Left))
+            {
+                return .5f;
+            }
+            if (_keyboard.IsKeyDown(Keys.Right))
+            {
+                return -.5f;
+            }
+            if (_keyboard.IsKeyDown(Keys.Up))
+            {
+                return 1f;
+            }
+            return _inverted ? -_gamePad.ThumbSticks.Right.X : _gamePad.ThumbSticks.Right.X;
+        }
+
+        /// <summary>
+        /// Escapes Key
+        /// </summary>
+        /// <returns></returns>
         public bool Escape()
         {
-            return gamePad.IsButtonDown(Buttons.Back) || kb.IsKeyDown(Keys.Escape);
+            return _gamePad.IsButtonDown(Buttons.Back) || _keyboard.IsKeyDown(Keys.Escape);
         }
 
+        /// <summary>
+        /// Select
+        /// </summary>
+        /// <returns></returns>
         public bool Select()
         {
-            return gamePad.IsButtonDown(Buttons.A) || kb.IsKeyDown(Keys.Space);
+            return _gamePad.IsButtonDown(Buttons.A) || _keyboard.IsKeyDown(Keys.Space);
         }
 
+        /// <summary>
+        /// Up
+        /// </summary>
+        /// <returns></returns>
         public bool Up()
         {
-            return gamePad.IsButtonDown(Buttons.DPadUp) || kb.IsKeyDown(Keys.W);
+            return _gamePad.IsButtonDown(Buttons.DPadUp) || _keyboard.IsKeyDown(Keys.W);
         }
 
+        /// <summary>
+        /// Down
+        /// </summary>
+        /// <returns></returns>
         public bool Down()
         {
-            return gamePad.IsButtonDown(Buttons.DPadDown) || kb.IsKeyDown(Keys.S);
+            return _gamePad.IsButtonDown(Buttons.DPadDown) || _keyboard.IsKeyDown(Keys.S);
         }
     }
 }

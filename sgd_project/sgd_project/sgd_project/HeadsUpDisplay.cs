@@ -1,16 +1,25 @@
-﻿using System;
+
+﻿//File:     HeadsUpDisplay.cs
+//Name:     Samuel Lewis (5821103) & Thomas Kempton (5781000)
+//Date:     2013-04-15
+//Class:    Simulation and Game Development
+//Ass:      Project
+//
+//Desc:     
+//          Heads up display used to convey information to the player
+//
+
+using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
 namespace sgd_project
 {
-    class HeadsUpDisplay : IDisposable
+    /// <summary>
+    /// Heads up display used to convey information to the player
+    /// </summary>
+    internal class HeadsUpDisplay
     {
-        /// <summary>
-        /// The font.
-        /// </summary>
-        private SpriteFont _font;
-
         /// <summary>
         /// The cardinal directions
         /// </summary>
@@ -39,9 +48,10 @@ namespace sgd_project
         /// </summary>
         private Texture2D _texture;
 
+        private readonly SpriteFont _font;
+
         /// <summary>
-        /// Initializes a new instance of the
-        /// <see cref="HeadsUpDisplay" /> class.
+        /// Initializes a new instance of the <see cref="HeadsUpDisplay"/> class.
         /// </summary>
         /// <param name="font">The font.</param>
         public HeadsUpDisplay(SpriteFont font, Texture2D texture)
@@ -78,6 +88,7 @@ namespace sgd_project
 
         /// <summary>
         /// Draws the heads up display to the specified sprite batch.
+        /// Draws the HUD to the display
         /// </summary>
         /// <param name="spriteBatch">The sprite batch.</param>
         /// <param name="view">The view.</param>
@@ -95,6 +106,7 @@ namespace sgd_project
                                    Color.Black, 0.0f,
                                    Vector2.Zero,
                                    1.0f, SpriteEffects.None, 0.0f);
+
             spriteBatch.DrawString(_font,
                                    string.Format(@"Y Rot.: {0:0.00}", MathHelper.ToDegrees(lem.RotationZ)),
                                    new Vector2(180, height + 7),
@@ -103,14 +115,14 @@ namespace sgd_project
                                    1.0f, SpriteEffects.None, 0.0f);
 
             spriteBatch.DrawString(_font,
-                                   string.Format(@"  Wind: {0:0.0} km\h {1}", GetWindSpeed(wind.X, wind.Z), GetCardinalDirection(wind.X, wind.Y)),
-                                   new Vector2(580, 7),
+                                   string.Format(@"Wind:   {0:0.0} km\h {1}", GetWindSpeed(wind.X, wind.Z), GetCardinalDirection(wind.X, wind.Y)),
+                                   new Vector2(590, 7),
                                    Color.Black, 0.0f,
                                    Vector2.Zero,
                                    1.0f, SpriteEffects.None, 0.0f);
             spriteBatch.DrawString(_font,
                                    string.Format(@"Height: {0:0.00}", (lem.Position.Y - Lem.MinY) / Lander.Metre.Y),
-                                   new Vector2(580, height + 7),
+                                   new Vector2(590, height + 7),
                                    Color.Black, 0.0f,
                                    Vector2.Zero,
                                    1.0f, SpriteEffects.None, 0.0f);

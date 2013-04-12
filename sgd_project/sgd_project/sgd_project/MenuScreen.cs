@@ -33,7 +33,7 @@ namespace sgd_project
         /// <value>
         /// The title.
         /// </value>
-        public String Title { get; private set; }
+        public String Title { get; set; }
 
         /// <summary>
         /// Gets the parent.

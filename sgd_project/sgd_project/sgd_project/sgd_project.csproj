@@ -115,6 +115,7 @@
     <Compile Include="BoundBox.cs" />
     <Compile Include="BoundingBoxRenderer.cs" />
     <Compile Include="BoundSphere.cs" />
+    <Compile Include="IEntity.cs" />
     <Compile Include="Input.cs" />
     <Compile Include="LandingPad.cs" />
     <Compile Include="LEM.cs" />
