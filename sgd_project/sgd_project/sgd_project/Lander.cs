@@ -20,6 +20,9 @@ namespace sgd_project
         private readonly GraphicsDeviceManager _graphics;
         private readonly Dictionary<string, Body> _gravity = new Dictionary<string, Body>();
 
+        private LandingPad _currentObjective;
+        private bool _storeAvailable;
+
         private readonly VertexPositionColorTexture[] _groundVertices = new VertexPositionColorTexture[4];
         private readonly List<LandingPad> _pads = new List<LandingPad>();
         private Viewport _bottomView;
@@ -341,9 +344,11 @@ namespace sgd_project
             var pad = new LandingPad();
             pad.Init(new Vector3(0, 3, 0)*Metre, _landingPadGreen);
             _pads.Add(pad);
+            _currentObjective = pad;
             pad = new LandingPad();
             pad.Init(new Vector3(15, 3, 30)*Metre, _landingPad);
             _pads.Add(pad);
+
         }
 
         /// <summary>
@@ -530,6 +535,15 @@ namespace sgd_project
                         }
                         if (collisions == 4)
                         {
+                            _storeAvailable = true;
+
+                            if(pad == _currentObjective)
+                            {
+                                pad.Model = _landingPad;
+                                _currentObjective = _pads[(_pads.IndexOf(pad) + 1) % _pads.Count];
+                                _currentObjective.Model = _landingPadGreen;
+                            }
+
                             if (_lem.Velocity.Y < 0)
                             {
                                 _lem.Position = new Vector3(_lem.Position.X, bound.Max().Y + Lem.MinY + 2.15f,

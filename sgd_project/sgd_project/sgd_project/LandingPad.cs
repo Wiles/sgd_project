@@ -18,7 +18,7 @@ namespace sgd_project
     /// </summary>
     internal class LandingPad : IEntity
     {
-        private Model _model;
+        public Model Model { get; set; }
 
         /// <summary>
         /// Gets the position.
@@ -47,10 +47,10 @@ namespace sgd_project
         /// <param name="projection">The projection.</param>
         public void Draw(GraphicsDevice graphics, Matrix camera, Matrix projection)
         {
-            var transforms = new Matrix[_model.Bones.Count];
-            _model.CopyAbsoluteBoneTransformsTo(transforms);
+            var transforms = new Matrix[Model.Bones.Count];
+            Model.CopyAbsoluteBoneTransformsTo(transforms);
 
-            foreach (ModelMesh mesh in _model.Meshes)
+            foreach (ModelMesh mesh in Model.Meshes)
             {
                 // This is where the mesh orientation is set, as well 
                 // as our camera and projection.
@@ -90,7 +90,7 @@ namespace sgd_project
         /// <param name="model">The model.</param>
         public void Init(Vector3 position, Model model)
         {
-            _model = model;
+            Model = model;
             Position = position;
         }
     }
