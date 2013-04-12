@@ -30,7 +30,7 @@ namespace sgd_project
         private BlendState _bs;
         private float _cameraHorizontalAngle;
         private Body _currentGravity;
-        private bool _debug = true;
+        private bool _debug;
         private DepthStencilState _dss;
 
         private Model _flame;
