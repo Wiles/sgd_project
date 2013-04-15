@@ -88,7 +88,7 @@ namespace sgd_project
         /// <value>
         /// The fuel.
         /// </value>
-        public float Fuel { get; private set; }
+        public float Fuel { get; set; }
 
         private SoundEffectInstance _engine;
         private AudioListener _listener;

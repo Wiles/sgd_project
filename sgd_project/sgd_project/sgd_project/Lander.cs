@@ -37,6 +37,9 @@ namespace sgd_project
         private Model _flame;
         private MenuScreen _gameOver;
         private Texture2D _grassTexture;
+        private Texture2D _fuelBlack;
+        private Texture2D _fuelGreen;
+        private Texture2D _fuelRed;
         private HeadsUpDisplay _hud;
         private bool _invertedControls;
         private Model _landingPad;
@@ -60,7 +63,6 @@ namespace sgd_project
         private Effect _textureEffect;
         private EffectParameter _textureEffectImage;
         private EffectParameter _textureEffectWvp;
-        private Stream _soundfile;
         private SoundEffect _soundEffect;
 
         private AudioListener _audioListener = new AudioListener();
@@ -311,6 +313,9 @@ namespace sgd_project
 
             _spriteBatch = new SpriteBatch(GraphicsDevice);
             _grassTexture = Content.Load<Texture2D>("Images\\grass");
+            _fuelBlack = Content.Load<Texture2D>("Images\\fuelBlack");
+            _fuelGreen = Content.Load<Texture2D>("Images\\fuelGreen");
+            _fuelRed = Content.Load<Texture2D>("Images\\fuelRed");
             _lemModel = Content.Load<Model>("models\\LEM\\LEM");
             _menuMove = Content.Load<SoundEffect>("Sounds\\menuMove");
             _menuSelect = Content.Load<SoundEffect>("Sounds\\menuSelect");
@@ -320,9 +325,8 @@ namespace sgd_project
             _landingPad = Content.Load<Model>("models\\landingPad\\landingPad");
             _landingPadGreen = Content.Load<Model>("models\\landingPad\\landingPadGreen");
 
-
             var hudTexture = Content.Load<Texture2D>("Images\\hud");
-            _hud = new HeadsUpDisplay(_scoreFont, hudTexture);
+            _hud = new HeadsUpDisplay(_scoreFont, hudTexture, _fuelBlack, _fuelRed, _fuelGreen);
              
             _menu.Initialize(GraphicsDevice.Viewport, _scoreFont, _menuMove, _menuSelect, _menuBack);
 
@@ -397,6 +401,26 @@ namespace sgd_project
                 _cameraHorizontalAngle = input.CameraRotationY()*MathHelper.Pi;
 
                 _lem.Update(delta, input);
+
+                if(_lem.Velocity.Y > 0)
+                {
+                    _storeAvailable = false;
+                }
+
+                if(kbState.IsKeyDown(Keys.F) && _storeAvailable )
+                {
+
+                    if (_score <= 0)
+                    {
+                        _storeAvailable = false;
+                    }
+                    else
+                    {
+                        _score -= 1;
+
+                        _lem.Fuel += .25f;
+                    }
+                }
             }
             else
             {
@@ -449,7 +473,9 @@ namespace sgd_project
                         _spriteBatch,
                         GraphicsDevice.Viewport,
                         _lem,
-                        _currentGravity.Wind, _score);
+                        _currentGravity.Wind, 
+                        _score,
+                        _storeAvailable);
                 _spriteBatch.End();
             }
             else
@@ -536,7 +562,6 @@ namespace sgd_project
                     }
                 }
             }
-
             foreach (LandingPad pad in _pads)
             {
                 foreach (IBound bound in pad.GetBounds())
@@ -553,16 +578,17 @@ namespace sgd_project
                         }
                         if (collisions == 4)
                         {
-                            _storeAvailable = true;
+                            if (_score > 0)
+                                _storeAvailable = true;
 
-                            if(pad == _currentObjective)
+                            if (pad == _currentObjective)
                             {
                                 pad.Model = _landingPad;
                                 _currentObjective = _pads[(_pads.IndexOf(pad) + 1) % _pads.Count];
                                 _currentObjective.Model = _landingPadGreen;
                                 var diff = pad.Position - _lem.Position;
                                 diff.Y = 0;
-                                _score += 100 - (int)(((diff.Length())/ (7.5 * Metre.Y)) * 100f);
+                                _score += 100 - (int)(((diff.Length()) / (7.5 * Metre.Y)) * 100f);
                             }
 
                             if (_lem.Velocity.Y < 0)

@@ -47,6 +47,9 @@ namespace sgd_project
         /// 
         /// </summary>
         private readonly Texture2D _texture;
+        private readonly Texture2D _fuelNormal;
+        private readonly Texture2D _fuelLow;
+        private readonly Texture2D _fuelAvailable;
 
         private readonly SpriteFont _font;
 
@@ -54,10 +57,13 @@ namespace sgd_project
         /// Initializes a new instance of the <see cref="HeadsUpDisplay"/> class.
         /// </summary>
         /// <param name="font">The font.</param>
-        public HeadsUpDisplay(SpriteFont font, Texture2D texture)
+        public HeadsUpDisplay(SpriteFont font, Texture2D texture, Texture2D fuelNormal, Texture2D fuelLow, Texture2D fuelAvailable)
         {
             _font = font;
             _texture = texture;
+            _fuelAvailable = fuelAvailable;
+            _fuelLow = fuelLow;
+            _fuelNormal = fuelNormal;
         }
 
         /// <summary>
@@ -94,9 +100,24 @@ namespace sgd_project
         /// <param name="view">The view.</param>
         /// <param name="lem">The lem.</param>
         /// <param name="wind">The wind vector.</param>
-        public void Draw(SpriteBatch spriteBatch, Viewport view, Lem lem, Vector3 wind, int score)
+        public void Draw(SpriteBatch spriteBatch, Viewport view, Lem lem, Vector3 wind, int score, bool store)
         {
             spriteBatch.Draw(_texture, Vector2.Zero, Color.White);
+
+            if(store)
+            {
+                spriteBatch.Draw(_fuelAvailable, new Vector2(view.Width - _fuelAvailable.Width, view.Height - _fuelAvailable.Height), Color.White);
+            
+            }
+            else if (lem.Fuel < 10)
+            {
+                spriteBatch.Draw(_fuelLow, new Vector2(view.Width - _fuelLow.Width, view.Height - _fuelLow.Height), Color.White);
+            }
+            else
+            {
+                spriteBatch.Draw(_fuelNormal, new Vector2(view.Width - _fuelNormal.Width, view.Height - _fuelNormal.Height), Color.White);
+
+            }
 
             float height = _font.MeasureString("_").Y;
 
