@@ -128,13 +128,13 @@ namespace sgd_project
                                    1.0f, SpriteEffects.None, 0.0f);
 
             spriteBatch.DrawString(_font,
-                                   string.Format(@"  Fuel: {0:0.00}", lem.Fuel),
+                                   string.Format(@"Fuel:  {0:0.00}", lem.Fuel),
                                    new Vector2(370, 7),
                                    Color.Black, 0.0f,
                                    Vector2.Zero,
                                    1.0f, SpriteEffects.None, 0.0f);
             spriteBatch.DrawString(_font,
-                                   string.Format(@" Score: {0:0.00}", score),
+                                   string.Format(@"Score: {0:0.00}", score),
                                    new Vector2(370, height + 7),
                                    Color.Black, 0.0f,
                                    Vector2.Zero,
