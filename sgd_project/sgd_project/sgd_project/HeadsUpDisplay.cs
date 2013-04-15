@@ -74,7 +74,7 @@ namespace sgd_project
         /// <returns>The cardinal direction.</returns>
         private static string GetCardinalDirection(float x, float z)
         {
-            var angle = ((Math.Atan2(x, z) * (180 / Math.PI)) + 360.0) % 360.0;
+            var angle = ((Math.Atan2(x, -z) * (180 / Math.PI)) + 360.0) % 360.0;
             var offset = 360.0 / (Directions.Length * 2.0);
             var fraction = 360.0 / Directions.Length;
             var i = (angle + offset) / fraction;
@@ -136,7 +136,7 @@ namespace sgd_project
                                    1.0f, SpriteEffects.None, 0.0f);
 
             spriteBatch.DrawString(_font,
-                                   string.Format(@"Wind:   {0:0.0} km\h {1}", GetWindSpeed(wind.X, wind.Z), GetCardinalDirection(wind.X, wind.Y)),
+                                   string.Format(@"Wind:   {0:0.0} km\h {1}", GetWindSpeed(wind.X, wind.Z), GetCardinalDirection(wind.X, wind.Z)),
                                    new Vector2(590, 7),
                                    Color.Black, 0.0f,
                                    Vector2.Zero,
