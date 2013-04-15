@@ -407,7 +407,7 @@ namespace sgd_project
                     _storeAvailable = false;
                 }
 
-                if(kbState.IsKeyDown(Keys.F) && _storeAvailable )
+                if((kbState.IsKeyDown(Keys.F) || gpState.IsButtonDown(Buttons.X)) && _storeAvailable )
                 {
 
                     if (_score <= 0)
@@ -578,6 +578,10 @@ namespace sgd_project
                         }
                         if (collisions == 4)
                         {
+                            if(_score == 0 && _lem.Fuel == 0)
+                            {
+                                GameOver("Out of fuel");
+                            }
                             if (_score > 0)
                                 _storeAvailable = true;
 
