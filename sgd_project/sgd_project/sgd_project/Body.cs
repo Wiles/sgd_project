@@ -15,7 +15,7 @@ namespace sgd_project
     /// <summary>
     /// Represents an astronomical body
     /// </summary>
-    internal class Body
+    public class Body
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="Body"/> class.
