@@ -150,19 +150,19 @@ namespace sgd_project
 
             spriteBatch.DrawString(_font,
                                    string.Format(@"Fuel:  {0:0.00}", lem.Fuel),
-                                   new Vector2(370, 7),
+                                   new Vector2(370, 0),
                                    Color.Black, 0.0f,
                                    Vector2.Zero,
                                    1.0f, SpriteEffects.None, 0.0f);
             spriteBatch.DrawString(_font,
                                    string.Format(@"Money: {0:0.00}", score),
-                                   new Vector2(370, height + 7),
+                                   new Vector2(370, height ),
                                    Color.Black, 0.0f,
                                    Vector2.Zero,
                                    1.0f, SpriteEffects.None, 0.0f);
             spriteBatch.DrawString(_font,
                                    string.Format(@"Points: {0:0.00}", points),
-                                   new Vector2(370, height * 2 + 7),
+                                   new Vector2(370, height * 2),
                                    Color.Black, 0.0f,
                                    Vector2.Zero,
                                    1.0f, SpriteEffects.None, 0.0f);
