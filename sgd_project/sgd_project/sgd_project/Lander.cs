@@ -24,6 +24,7 @@ namespace sgd_project
         private LandingPad _currentObjective;
         private bool _storeAvailable;
         private int _score;
+        private int _points;
 
         private readonly VertexPositionColorTexture[] _groundVertices = new VertexPositionColorTexture[4];
         private readonly List<LandingPad> _pads = new List<LandingPad>();
@@ -491,7 +492,8 @@ namespace sgd_project
                         _lem,
                         _currentGravity.Wind, 
                         _score,
-                        _storeAvailable);
+                        _storeAvailable,
+                        _points);
                 _spriteBatch.End();
             }
             else
@@ -548,6 +550,7 @@ namespace sgd_project
 
         public void NewGame()
         {
+            _points = 0;
             _currentObjective.Model = _landingPad;
             _currentObjective = _pads[1];
             _currentObjective.Model = _landingPadGreen;
@@ -613,6 +616,7 @@ namespace sgd_project
                                 var diff = pad.Position - _lem.Position;
                                 diff.Y = 0;
                                 _score += 100 - (int)(((diff.Length()) / (7.5 * Metre.Y)) * 100f);
+                                _points += 1;
                             }
 
                             if (_lem.Velocity.Y < 0)
