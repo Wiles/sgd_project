@@ -360,9 +360,24 @@ namespace sgd_project
             pad.Init(new Vector3(0, 3, 0)*Metre, _landingPad);
             _pads.Add(pad);
             pad = new LandingPad();
-            pad.Init(new Vector3(15, 3, 30) * Metre, _landingPadGreen);
+            pad.Init(new Vector3(15, 3, -30) * Metre, _landingPadGreen);
             _pads.Add(pad);
             _currentObjective = pad;
+            pad = new LandingPad();
+            pad.Init(new Vector3(45, 3, -60) * Metre, _landingPad);
+            _pads.Add(pad);
+            pad = new LandingPad();
+            pad.Init(new Vector3(90, 3, -40) * Metre, _landingPad);
+            _pads.Add(pad);
+            pad = new LandingPad();
+            pad.Init(new Vector3(60, 3, 50) * Metre, _landingPad);
+            _pads.Add(pad);
+            pad = new LandingPad();
+            pad.Init(new Vector3(30, 3, 40) * Metre, _landingPad);
+            _pads.Add(pad);
+            pad = new LandingPad();
+            pad.Init(new Vector3(0, 3, 30) * Metre, _landingPad);
+            _pads.Add(pad);
 
         }
 
