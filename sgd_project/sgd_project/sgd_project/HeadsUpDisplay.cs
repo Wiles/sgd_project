@@ -100,7 +100,7 @@ namespace sgd_project
         /// <param name="view">The view.</param>
         /// <param name="lem">The lem.</param>
         /// <param name="wind">The wind vector.</param>
-        public void Draw(SpriteBatch spriteBatch, Viewport view, Lem lem, Vector3 wind, int score, bool store)
+        public void Draw(SpriteBatch spriteBatch, Viewport view, Lem lem, Vector3 wind, int score, bool store, int points)
         {
             spriteBatch.Draw(_texture, Vector2.Zero, Color.White);
 
@@ -155,8 +155,14 @@ namespace sgd_project
                                    Vector2.Zero,
                                    1.0f, SpriteEffects.None, 0.0f);
             spriteBatch.DrawString(_font,
-                                   string.Format(@"Score: {0:0.00}", score),
+                                   string.Format(@"Money: {0:0.00}", score),
                                    new Vector2(370, height + 7),
+                                   Color.Black, 0.0f,
+                                   Vector2.Zero,
+                                   1.0f, SpriteEffects.None, 0.0f);
+            spriteBatch.DrawString(_font,
+                                   string.Format(@"Points: {0:0.00}", points),
+                                   new Vector2(370, height * 2 + 7),
                                    Color.Black, 0.0f,
                                    Vector2.Zero,
                                    1.0f, SpriteEffects.None, 0.0f);
