@@ -548,7 +548,10 @@ namespace sgd_project
 
         public void NewGame()
         {
+            _currentObjective.Model = _landingPad;
             _currentObjective = _pads[1];
+            _currentObjective.Model = _landingPadGreen;
+
             _menu.MainMenuIndex = _menu.Screens.IndexOf(_pause);
             _menu.SelectedMenuScreen = _menu.MainMenuIndex;
             _lem.Dispose();
