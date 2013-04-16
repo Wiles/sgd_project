@@ -26,21 +26,21 @@ namespace sgd_project
         private static string[] Directions = new[]
         {
             "N",
-            "NNE",
+            //"NNE",
             "NE",
-            "ENE",
+            //"ENE",
             "E",
-            "ESE",
+            //"ESE",
             "SE",
-            "SSE",
+            //"SSE",
             "S",
-            "SSW",
+            //"SSW",
             "SW",
-            "WSW",
+            //"WSW",
             "W",
-            "WNW",
+            //"WNW",
             "NW",
-            "NNW"
+            //"NNW"
         };
 
         /// <summary>
@@ -169,6 +169,9 @@ namespace sgd_project
         public void Dispose()
         {
             this._texture.Dispose();
+            this._fuelAvailable.Dispose();
+            this._fuelLow.Dispose();
+            this._fuelNormal.Dispose();
         }
     }
 }
