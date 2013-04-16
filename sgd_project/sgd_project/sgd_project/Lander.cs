@@ -280,6 +280,7 @@ namespace sgd_project
                         _lem.Body = pair.Value;
                         _currentGravity = pair.Value;
                         _menu.SelectedMenuScreen = _menu.MainMenuIndex;
+                        NewGame();
                     }));
             planet.Elements = e;
 
@@ -337,9 +338,9 @@ namespace sgd_project
 
             //Equitorial Surface Body as listed on Wikipedia
             _gravity.Add("sun", new Body(new Vector3(0, -274.0f, 0), new Vector3(0.0f, 0.0f, 0.0f), ground));
-            _gravity.Add("mercury", new Body(new Vector3(0, -3.7f, 0), new Vector3(1.0f, 0.0f, 1.0f), ground));
-            _gravity.Add("venus", new Body(new Vector3(0, -8.87f, 0), new Vector3(0.0f, 0.0f, 0.0f), ground));
-            _gravity.Add("earth", new Body(new Vector3(0, -9.780327f, 0), new Vector3(1.0f, 0.0f, 0.0f), ground));
+            _gravity.Add("mercury", new Body(new Vector3(0, -3.7f, 0), new Vector3(.1f, 0.0f, .001f), ground));
+            _gravity.Add("venus", new Body(new Vector3(0, -8.87f, 0), new Vector3(0.1f, 0.0f, 0.15f), ground));
+            _gravity.Add("earth", new Body(new Vector3(0, -9.780327f, 0), new Vector3(.25f, 0.0f, 0.0f), ground));
             _gravity.Add("moon", new Body(new Vector3(0, -1.622f, 0), new Vector3(0.0f, 0.0f, 0.0f), ground));
             _gravity.Add("mars", new Body(new Vector3(0, -3.711f, 0), new Vector3(0.0f, 0.0f, 0.0f), ground));
             _gravity.Add("jupiter", new Body(new Vector3(0, -24.79f, 0), new Vector3(0.0f, 0.0f, 0.0f), ground));
@@ -532,6 +533,7 @@ namespace sgd_project
 
         public void NewGame()
         {
+            _currentObjective = _pads[1];
             _menu.MainMenuIndex = _menu.Screens.IndexOf(_pause);
             _menu.SelectedMenuScreen = _menu.MainMenuIndex;
             _lem.Dispose();

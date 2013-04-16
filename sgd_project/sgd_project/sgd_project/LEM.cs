@@ -104,7 +104,7 @@ namespace sgd_project
         /// <param name="engine">The engine sound effect </param>
         public void Init(Vector3 position, Model model, Model flame, Body gravity, float fuel, SoundEffect engine, AudioListener listener)
         {
-            MaxThrust = 5f;
+            MaxThrust = 10f;
             Rps = MathHelper.PiOver4/2;
             _model = model;
             _flame = flame;
