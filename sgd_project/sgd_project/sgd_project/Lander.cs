@@ -273,8 +273,8 @@ namespace sgd_project
 
             e = _gravity.ToList().ToDictionary<KeyValuePair<string, Body>, string, Action>(
                 pair =>
-                string.Format(@"{0, 10} G: {1:0.##}mpsps W: {2:0.##}mps", pair.Key, -pair.Value.Gravity.Y,
-                              pair.Value.Wind.Length()),
+                string.Format(@"{0, 10} G: {1:0.##}mpsps W: {2:0.##}kph", pair.Key, -pair.Value.Gravity.Y,
+                              pair.Value.Wind.Length() * 3.6 * Metre.Y),
                 pair => (() =>
                     {
                         _lem.Body = pair.Value;
