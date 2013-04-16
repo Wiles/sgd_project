@@ -82,14 +82,14 @@ namespace sgd_project
         }
 
         /// <summary>
-        /// Gets the wind speed from an xy vector.
+        /// Gets the wind speed from an xz vector.
         /// </summary>
         /// <param name="x">The x coordinate.</param>
         /// <param name="z">The z coordinate.</param>
         /// <returns>The speed in km/h</returns>
         private static float GetWindSpeed(float x, float z)
         {
-            return (float)Math.Sqrt(x * x + z * z) * 3.6f;
+            return (float)Math.Sqrt(x * x + z * z) * 3.6f * Lander.Metre.X;
         }
 
         /// <summary>
