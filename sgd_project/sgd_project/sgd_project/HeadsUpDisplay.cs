@@ -123,27 +123,27 @@ namespace sgd_project
 
             spriteBatch.DrawString(_font,
                                    string.Format(@"X Rot.: {0:0.00}", MathHelper.ToDegrees(lem.RotationX)),
-                                   new Vector2(180, 7),
+                                   new Vector2(180, 0),
                                    Color.Black, 0.0f,
                                    Vector2.Zero,
                                    1.0f, SpriteEffects.None, 0.0f);
 
             spriteBatch.DrawString(_font,
                                    string.Format(@"Y Rot.: {0:0.00}", MathHelper.ToDegrees(lem.RotationZ)),
-                                   new Vector2(180, height + 7),
+                                   new Vector2(180, height),
                                    Color.Black, 0.0f,
                                    Vector2.Zero,
                                    1.0f, SpriteEffects.None, 0.0f);
 
             spriteBatch.DrawString(_font,
                                    string.Format(@"Wind:   {0:0.0} km\h {1}", GetWindSpeed(wind.X, wind.Z), GetCardinalDirection(wind.X, wind.Z)),
-                                   new Vector2(590, 7),
+                                   new Vector2(590, 0),
                                    Color.Black, 0.0f,
                                    Vector2.Zero,
                                    1.0f, SpriteEffects.None, 0.0f);
             spriteBatch.DrawString(_font,
                                    string.Format(@"Height: {0:0.00}", (lem.Position.Y - Lem.MinY) / Lander.Metre.Y),
-                                   new Vector2(590, height + 7),
+                                   new Vector2(590, height),
                                    Color.Black, 0.0f,
                                    Vector2.Zero,
                                    1.0f, SpriteEffects.None, 0.0f);
@@ -156,7 +156,7 @@ namespace sgd_project
                                    1.0f, SpriteEffects.None, 0.0f);
             spriteBatch.DrawString(_font,
                                    string.Format(@"Money: {0:0.00}", score),
-                                   new Vector2(370, height ),
+                                   new Vector2(370, height),
                                    Color.Black, 0.0f,
                                    Vector2.Zero,
                                    1.0f, SpriteEffects.None, 0.0f);
