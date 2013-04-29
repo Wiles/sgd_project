@@ -267,7 +267,12 @@ namespace sgd_project
 
             e = new Dictionary<string, Action>
                 {
-                    {"TODO", null}
+                    {"Control Lander - WASD/Left thumb stick", null},
+                    {"Main Thruster - Space/Right trigger", null},
+                    {"Buy Fuel - F/X", null},
+                    {"Rotate Camera - Direction Keys/Right thumb stick", null},
+                    {"Menu movement - WASD/D-pad", null},
+                    {"Menu Select - Space/A", null}
                 };
 
             controls.Elements = e;
